@@ -1,9 +1,9 @@
 package uppers.tiles;
 
-import javax.annotation.Nullable;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+
+import com.sun.istack.internal.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
@@ -13,6 +13,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.OptionalCapabilityInstance;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -21,15 +22,13 @@ import uppers.blocks.BlockUpper;
 public class InventoryCodeHooksTweaked
 {
     /**
-     * Copied from TileEntityUpper#captureDroppedItems and added capability support
+     * Copied from FORGE!!!
      * @return Null if we did nothing {no IItemHandler}, True if we moved an item, False if we moved no items
      */
     @Nullable
     public static Boolean extractHook(IHopper dest)
     {
-        Pair<IItemHandler, Object> itemHandlerResult = getItemHandler(dest, EnumFacing.DOWN);
-        if (itemHandlerResult == null)
-            return null;
+    	return getItemHandler(dest, EnumFacing.DOWN) .map(itemHandlerResult -> {
 
         IItemHandler handler = itemHandlerResult.getKey();
 
@@ -57,29 +56,21 @@ public class InventoryCodeHooksTweaked
                 }
             }
         }
+			return false;
+		}).orElse(null); // TODO bad null
+	}
 
-        return false;
-    }
-
-    /**
-     * Copied from TileEntityUpper#transferItemsOut and added capability support
-     */
     public static boolean insertHook(TileEntityUpper tileEntityUpper)
     {
-        EnumFacing upperFacing = BlockUpper.getFacing(tileEntityUpper.getBlockMetadata());
-        Pair<IItemHandler, Object> destinationResult = getItemHandler(tileEntityUpper, upperFacing);
-        if (destinationResult == null)
-        {
-            return false;
-        }
-        else
-        {
-            IItemHandler itemHandler = destinationResult.getKey();
-            Object destination = destinationResult.getValue();
-            if (isFull(itemHandler))
-            {
-                return false;
-            }
+    	EnumFacing upperFacing = tileEntityUpper.getBlockState().get(BlockUpper.FACING);
+        return getItemHandler(tileEntityUpper, upperFacing)
+                .map(destinationResult -> {
+                    IItemHandler itemHandler = destinationResult.getKey();
+                    Object destination = destinationResult.getValue();
+                    if (isFull(itemHandler))
+                    {
+                        return false;
+                    }
             else
             {
                 for (int i = 0; i < tileEntityUpper.getSizeInventory(); ++i)
@@ -101,7 +92,8 @@ public class InventoryCodeHooksTweaked
 
                 return false;
             }
-        }
+                })
+                .orElse(false);
     }
 
     private static ItemStack putStackInInventoryAllSlots(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack)
@@ -113,9 +105,6 @@ public class InventoryCodeHooksTweaked
         return stack;
     }
 
-    /**
-     * Copied from TileEntityUpper#insertStack and added capability support
-     */
     private static ItemStack insertStack(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot)
     {
         ItemStack itemstack = destInventory.getStackInSlot(slot);
@@ -165,12 +154,11 @@ public class InventoryCodeHooksTweaked
         return stack;
     }
 
-    @Nullable
-    private static Pair<IItemHandler, Object> getItemHandler(IHopper upper, EnumFacing upperFacing)
+    private static OptionalCapabilityInstance<Pair<IItemHandler, Object>> getItemHandler(IHopper upper, EnumFacing upperFacing)
     {
-        double x = upper.getXPos() + (double) upperFacing.getFrontOffsetX();
-        double y = upper.getYPos() + (double) upperFacing.getFrontOffsetY();
-        double z = upper.getZPos() + (double) upperFacing.getFrontOffsetZ();
+        double x = upper.getXPos() + (double) upperFacing.getXOffset();
+        double y = upper.getYPos() + (double) upperFacing.getYOffset();
+        double z = upper.getZPos() + (double) upperFacing.getZOffset();
         return getItemHandler(upper.getWorld(), x, y, z, upperFacing.getOpposite());
     }
 
@@ -200,10 +188,8 @@ public class InventoryCodeHooksTweaked
         return true;
     }
 
-    @Nullable
-    public static Pair<IItemHandler, Object> getItemHandler(World worldIn, double x, double y, double z, final EnumFacing side)
+    public static OptionalCapabilityInstance<Pair<IItemHandler, Object>> getItemHandler(World worldIn, double x, double y, double z, final EnumFacing side)
     {
-        Pair<IItemHandler, Object> destination = null;
         int i = MathHelper.floor(x);
         int j = MathHelper.floor(y);
         int k = MathHelper.floor(z);
@@ -211,19 +197,16 @@ public class InventoryCodeHooksTweaked
         net.minecraft.block.state.IBlockState state = worldIn.getBlockState(blockpos);
         Block block = state.getBlock();
 
-        if (block.hasTileEntity(state))
+        if (block.hasTileEntity(/* TODO Block patches // state */))
         {
             TileEntity tileentity = worldIn.getTileEntity(blockpos);
             if (tileentity != null)
             {
-                if (tileentity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side))
-                {
-                    IItemHandler capability = tileentity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
-                    destination = ImmutablePair.<IItemHandler, Object>of(capability, tileentity);
-                }
+                return tileentity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)
+                    .map(capability -> ImmutablePair.<IItemHandler, Object>of(capability, tileentity));
             }
         }
 
-        return destination;
+        return OptionalCapabilityInstance.empty();
     }
 }

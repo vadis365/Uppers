@@ -1,51 +1,51 @@
 package uppers;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
+import com.sun.istack.internal.Nullable;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.block.statemap.StateMap;
+import net.minecraft.block.material.MapColor;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.registries.IForgeRegistry;
 import uppers.blocks.BlockUpper;
+import uppers.tiles.TileEntityUpper;
 
 public class ModBlocks {
 
 	public static Block UPPER;
 	public static ItemBlock UPPER_ITEM;
+	public static final TileEntityType<TileEntityUpper> UPPER_TILE = TileEntityType.Builder.create(TileEntityUpper::new).build(null);
 
 	public static void init() {
-		UPPER = new BlockUpper();
-		UPPER_ITEM = new ItemBlock(UPPER) {
+		UPPER = new BlockUpper(Block.Builder.create(Material.IRON, MapColor.STONE).hardnessAndResistance(3.0F, 4.8F));//.sound(SoundType.METAL));
+		UPPER_ITEM = new ItemBlock(UPPER, new Item.Builder().group(Uppers.TAB)) {
 			@Override
-			@SideOnly(Side.CLIENT)
-			public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> list, ITooltipFlag flag) {
-				list.add(TextFormatting.YELLOW + new TextComponentTranslation("tooltip.upper_1").getFormattedText());
-				list.add(TextFormatting.YELLOW + new TextComponentTranslation("tooltip.upper_2").getFormattedText());
+			@OnlyIn(Dist.CLIENT)
+			   public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+				tooltip.add(new TextComponentTranslation("tooltip.upper_1"));
+				tooltip.add(new TextComponentTranslation("tooltip.upper_2"));
 			}
 		};
-		UPPER.setRegistryName("uppers", "upper").setUnlocalizedName("uppers.upper");
-		UPPER_ITEM.setRegistryName(UPPER.getRegistryName()).setUnlocalizedName("uppers.upper");
+		UPPER.setRegistryName(Reference.MOD_ID, "upper");
+		UPPER_ITEM.setRegistryName(UPPER.getRegistryName());
 	}
 
-	@Mod.EventBusSubscriber(modid = "uppers")
+	@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
 	public static class RegistrationHandlerBlocks {
 		@SubscribeEvent
 		public static void registerBlocks(final RegistryEvent.Register<Block> event) {
@@ -65,12 +65,18 @@ public class ModBlocks {
 				registry.register(item);
 			}
 		}
+		
+        @SubscribeEvent
+        public static void registerTileEntities(RegistryEvent.Register<TileEntityType<?> > event) {
+            IForgeRegistry<TileEntityType<?>> registry = event.getRegistry();
+            registry.register(UPPER_TILE.setRegistryName(Reference.MOD_ID, Reference.UPPER));
+        }
 
-		@SideOnly(Side.CLIENT)
+        @OnlyIn(Dist.CLIENT)
 		@SubscribeEvent
 		public static void registerModels(ModelRegistryEvent event) {
-			ModelLoader.setCustomModelResourceLocation(UPPER_ITEM, 0, new ModelResourceLocation(UPPER_ITEM.getRegistryName().toString(), "inventory"));
-			ModelLoader.setCustomStateMapper((UPPER), (new StateMap.Builder()).ignore(new IProperty[] { BlockUpper.ENABLED }).build());
+		//	ModelLoader.setCustomModelResourceLocation(UPPER_ITEM, 0, new ModelResourceLocation(UPPER_ITEM.getRegistryName().toString(), "inventory"));
+		//	ModelLoader.setCustomStateMapper((UPPER), (new StateMap.Builder()).ignore(new IProperty[] { BlockUpper.ENABLED }).build());
 		}
 	}
 
