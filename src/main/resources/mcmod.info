@@ -1,0 +1,20 @@
+[
+{
+  "modid": "uppers",
+  "name": "uppers",
+  "description": "A mod that adds upside-down hoppers.",
+  "version": "0.0.6",
+  "url": "",
+  "updateUrl": "",
+  "authorList": [
+    "vadis365"
+  ],
+  "credits": "Thanks to people and stuff.",
+  "logoFile": "",
+  "screenshots": [
+  ],
+  "parent":"",
+  "dependencies": [
+  ]
+}
+]
