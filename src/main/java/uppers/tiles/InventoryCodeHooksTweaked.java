@@ -188,7 +188,8 @@ public class InventoryCodeHooksTweaked
         return true;
     }
 
-    public static OptionalCapabilityInstance<Pair<IItemHandler, Object>> getItemHandler(World worldIn, double x, double y, double z, final EnumFacing side)
+    @SuppressWarnings("deprecation")
+	public static OptionalCapabilityInstance<Pair<IItemHandler, Object>> getItemHandler(World worldIn, double x, double y, double z, final EnumFacing side)
     {
         int i = MathHelper.floor(x);
         int j = MathHelper.floor(y);

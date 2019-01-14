@@ -198,6 +198,7 @@ public class BlockUpper extends BlockContainer {
 		return (IBlockState) state.with(FACING, rot.rotate((EnumFacing) state.get(FACING)));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public IBlockState mirror(IBlockState state, Mirror mirrorIn) {
 		return state.rotate(mirrorIn.toRotation((EnumFacing) state.get(FACING)));
