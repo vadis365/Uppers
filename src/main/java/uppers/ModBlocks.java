@@ -2,7 +2,7 @@ package uppers;
 
 import java.util.List;
 
-import com.sun.istack.internal.Nullable;
+import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;

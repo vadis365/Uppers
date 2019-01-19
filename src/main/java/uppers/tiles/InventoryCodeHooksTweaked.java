@@ -1,9 +1,9 @@
 package uppers.tiles;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-
-import com.sun.istack.internal.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
