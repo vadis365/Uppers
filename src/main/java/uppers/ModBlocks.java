@@ -18,7 +18,6 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -27,7 +26,6 @@ import uppers.blocks.UpperBlock;
 import uppers.tiles.UpperTileEntity;
 
 public class ModBlocks {
-
 	public static Block UPPER;
 	public static BlockItem UPPER_ITEM;
 	public static TileEntityType<UpperTileEntity> UPPER_TILE;
@@ -69,5 +67,4 @@ public class ModBlocks {
             registry.register(UPPER_TILE);
         }
 	}
-
 }

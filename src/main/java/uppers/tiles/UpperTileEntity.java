@@ -44,11 +44,11 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, 
 	private NonNullList<ItemStack> inventory = NonNullList.withSize(5, ItemStack.EMPTY);
 	private int transferCooldown = -1;
 	private long tickedGameTime;
-	
+
 	public UpperTileEntity() {
 		super(ModBlocks.UPPER_TILE);
 	}
-	
+
 	@Override
 	public void read(CompoundNBT compound) {
 		super.read(compound);
@@ -117,7 +117,6 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, 
 					return pullItems(this);
 				});
 			}
-
 		}
 	}
 
@@ -187,24 +186,24 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, 
 			}
 		}
 	}
-	
+
 	private static IntStream inventoryChecked(IInventory inventoryIn, Direction direction) {
 		      return inventoryIn instanceof ISidedInventory ? IntStream.of(((ISidedInventory)inventoryIn).getSlotsForFace(direction)) : IntStream.range(0, inventoryIn.getSizeInventory());
-		   }
+	}
 
-	   private boolean isInventoryFull(IInventory inventoryIn, Direction side) {
-		      return inventoryChecked(inventoryIn, side).allMatch((stackInSlot) -> {
-		         ItemStack itemstack = inventoryIn.getStackInSlot(stackInSlot);
-		         return itemstack.getCount() >= itemstack.getMaxStackSize();
-		      });
-		   }
+	private boolean isInventoryFull(IInventory inventoryIn, Direction side) {
+		return inventoryChecked(inventoryIn, side).allMatch((stackInSlot) -> {
+			ItemStack itemstack = inventoryIn.getStackInSlot(stackInSlot);
+			return itemstack.getCount() >= itemstack.getMaxStackSize();
+		});
+	}
 
-	   private static boolean isInventoryEmpty(IInventory inventoryIn, Direction side) {
-		      return inventoryChecked(inventoryIn, side).allMatch((stackInSlot) -> {
-		         return inventoryIn.getStackInSlot(stackInSlot).isEmpty();
-		      });
-		   }
-	
+	private static boolean isInventoryEmpty(IInventory inventoryIn, Direction side) {
+		return inventoryChecked(inventoryIn, side).allMatch((stackInSlot) -> {
+			return inventoryIn.getStackInSlot(stackInSlot).isEmpty();
+		});
+	}
+
 	public static boolean pullItems(IUpper upper) {
 		Boolean ret = InventoryCodeHooksTweaked.extractHook(upper);
 		if (ret != null)

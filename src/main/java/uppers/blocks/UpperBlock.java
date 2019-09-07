@@ -37,22 +37,22 @@ import uppers.tiles.IUpper;
 import uppers.tiles.UpperTileEntity;
 
 public class UpperBlock extends ContainerBlock {
-	   public static final DirectionProperty FACING = BlockStateProperties.FACING;
-	   public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
-	   private static final VoxelShape INPUT_SHAPE = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D);
-	   private static final VoxelShape MIDDLE_SHAPE = Block.makeCuboidShape(4.0D, 6.0D, 4.0D, 12.0D, 12.0D, 12.0D);
-	   private static final VoxelShape INPUT_MIDDLE_SHAPE = VoxelShapes.or(MIDDLE_SHAPE, INPUT_SHAPE);
-	   private static final VoxelShape field_196326_A = VoxelShapes.combineAndSimplify(INPUT_MIDDLE_SHAPE, IUpper.INSIDE_BOWL_SHAPE, IBooleanFunction.ONLY_FIRST);
-	   private static final VoxelShape DOWN_SHAPE = VoxelShapes.or(field_196326_A, Block.makeCuboidShape(6.0D, 12.0D, 6.0D, 10.0D, 16.0D, 10.0D));
-	   private static final VoxelShape EAST_SHAPE = VoxelShapes.or(field_196326_A, Block.makeCuboidShape(12.0D, 8.0D, 6.0D, 16.0D, 12.0D, 10.0D));
-	   private static final VoxelShape NORTH_SHAPE = VoxelShapes.or(field_196326_A, Block.makeCuboidShape(6.0D, 8.0D, 0.0D, 10.0D, 12.0D, 4.0D));
-	   private static final VoxelShape SOUTH_SHAPE = VoxelShapes.or(field_196326_A, Block.makeCuboidShape(6.0D, 8.0D, 12.0D, 10.0D, 12.0D, 16.0D));
-	   private static final VoxelShape WEST_SHAPE = VoxelShapes.or(field_196326_A, Block.makeCuboidShape(0.0D, 8.0D, 6.0D, 4.0D, 12.0D, 10.0D));
-	   private static final VoxelShape DOWN_RAYTRACE_SHAPE = IUpper.INSIDE_BOWL_SHAPE;
-	   private static final VoxelShape EAST_RAYTRACE_SHAPE = VoxelShapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.makeCuboidShape(12.0D, 6.0D, 6.0D, 16.0D, 8.0D, 10.0D));
-	   private static final VoxelShape NORTH_RAYTRACE_SHAPE = VoxelShapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.makeCuboidShape(6.0D, 6.0D, 0.0D, 10.0D, 8.0D, 4.0D));
-	   private static final VoxelShape SOUTH_RAYTRACE_SHAPE = VoxelShapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.makeCuboidShape(6.0D, 6.0D, 12.0D, 10.0D, 8.0D, 16.0D));
-	   private static final VoxelShape WEST_RAYTRACE_SHAPE = VoxelShapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.makeCuboidShape(0.0D, 6.0D, 6.0D, 4.0D, 8.0D, 10.0D));
+	public static final DirectionProperty FACING = BlockStateProperties.FACING;
+	public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
+	private static final VoxelShape INPUT_SHAPE = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D);
+	private static final VoxelShape MIDDLE_SHAPE = Block.makeCuboidShape(4.0D, 6.0D, 4.0D, 12.0D, 12.0D, 12.0D);
+	private static final VoxelShape INPUT_MIDDLE_SHAPE = VoxelShapes.or(MIDDLE_SHAPE, INPUT_SHAPE);
+	private static final VoxelShape field_196326_A = VoxelShapes.combineAndSimplify(INPUT_MIDDLE_SHAPE, IUpper.INSIDE_BOWL_SHAPE, IBooleanFunction.ONLY_FIRST);
+	private static final VoxelShape DOWN_SHAPE = VoxelShapes.or(field_196326_A, Block.makeCuboidShape(6.0D, 12.0D, 6.0D, 10.0D, 16.0D, 10.0D));
+	private static final VoxelShape EAST_SHAPE = VoxelShapes.or(field_196326_A, Block.makeCuboidShape(12.0D, 8.0D, 6.0D, 16.0D, 12.0D, 10.0D));
+	private static final VoxelShape NORTH_SHAPE = VoxelShapes.or(field_196326_A, Block.makeCuboidShape(6.0D, 8.0D, 0.0D, 10.0D, 12.0D, 4.0D));
+	private static final VoxelShape SOUTH_SHAPE = VoxelShapes.or(field_196326_A, Block.makeCuboidShape(6.0D, 8.0D, 12.0D, 10.0D, 12.0D, 16.0D));
+	private static final VoxelShape WEST_SHAPE = VoxelShapes.or(field_196326_A, Block.makeCuboidShape(0.0D, 8.0D, 6.0D, 4.0D, 12.0D, 10.0D));
+	private static final VoxelShape DOWN_RAYTRACE_SHAPE = IUpper.INSIDE_BOWL_SHAPE;
+	private static final VoxelShape EAST_RAYTRACE_SHAPE = VoxelShapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.makeCuboidShape(12.0D, 6.0D, 6.0D, 16.0D, 8.0D, 10.0D));
+	private static final VoxelShape NORTH_RAYTRACE_SHAPE = VoxelShapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.makeCuboidShape(6.0D, 6.0D, 0.0D, 10.0D, 8.0D, 4.0D));
+	private static final VoxelShape SOUTH_RAYTRACE_SHAPE = VoxelShapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.makeCuboidShape(6.0D, 6.0D, 12.0D, 10.0D, 8.0D, 16.0D));
+	private static final VoxelShape WEST_RAYTRACE_SHAPE = VoxelShapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.makeCuboidShape(0.0D, 6.0D, 6.0D, 4.0D, 8.0D, 10.0D));
 
 	public UpperBlock(Block.Properties properties) {
 		super(properties);
@@ -110,17 +110,15 @@ public class UpperBlock extends ContainerBlock {
 	public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
 		if (stack.hasDisplayName()) {
 			TileEntity tileentity = world.getTileEntity(pos);
-			if (tileentity instanceof UpperTileEntity) {
+			if (tileentity instanceof UpperTileEntity)
 				((UpperTileEntity) tileentity).setCustomName(stack.getDisplayName());
-			}
 		}
 	}
 
 	@Override
 	public void onBlockAdded(BlockState state, World worldIn, BlockPos pos, BlockState oldState, boolean isMoving) {
-		if (oldState.getBlock() != state.getBlock()) {
+		if (oldState.getBlock() != state.getBlock())
 			this.updateState(worldIn, pos, state);
-		}
 	}
 
 	@Override
@@ -141,12 +139,11 @@ public class UpperBlock extends ContainerBlock {
 	public void neighborChanged(BlockState state, World world, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
 		this.updateState(world, pos, state);
 	}
-	
+
 	private void updateState(World world, BlockPos pos, BlockState state) {
 		boolean flag = !world.isBlockPowered(pos);
-		if (flag != state.get(ENABLED)) {
+		if (flag != state.get(ENABLED))
 			world.setBlockState(pos, state.with(ENABLED, Boolean.valueOf(flag)), 4);
-		}
 	}
 
 	@Override
@@ -197,13 +194,12 @@ public class UpperBlock extends ContainerBlock {
 	protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
 		builder.add(FACING, ENABLED);
 	}
-	
+
 	@Override
 	public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
 		TileEntity tileentity = world.getTileEntity(pos);
-		if (tileentity instanceof UpperTileEntity) {
+		if (tileentity instanceof UpperTileEntity)
 			((UpperTileEntity) tileentity).onEntityCollision(entity);
-		}
 	}
 
 	@Override
