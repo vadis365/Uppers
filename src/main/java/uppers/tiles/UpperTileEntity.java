@@ -3,6 +3,7 @@ package uppers.tiles;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javax.annotation.Nullable;
 
@@ -22,7 +23,6 @@ import net.minecraft.inventory.container.HopperContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ChestTileEntity;
-import net.minecraft.tileentity.IHopper;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.LockableLootTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -40,8 +40,8 @@ import net.minecraftforge.items.IItemHandler;
 import uppers.ModBlocks;
 import uppers.blocks.UpperBlock;
 
-public class UpperTileEntity  extends LockableLootTileEntity implements IHopper, ITickableTileEntity {
-	private NonNullList<ItemStack> inventory = NonNullList.<ItemStack>withSize(5, ItemStack.EMPTY);
+public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, ITickableTileEntity {
+	private NonNullList<ItemStack> inventory = NonNullList.withSize(5, ItemStack.EMPTY);
 	private int transferCooldown = -1;
 	private long tickedGameTime;
 	
@@ -52,7 +52,7 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IHopper,
 	@Override
 	public void read(CompoundNBT compound) {
 		super.read(compound);
-		inventory = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
+		inventory = NonNullList.withSize(getSizeInventory(), ItemStack.EMPTY);
 		if (!checkLootAndRead(compound))
 			ItemStackHelper.loadAllItems(compound, inventory);
 		if (compound.contains("CustomName", 8))
@@ -105,11 +105,6 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IHopper,
 	public int getInventoryStackLimit() {
 		return 64;
 	}
-
-//	@Override
-//	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
-//		return oldState.getBlock() != newState.getBlock();
-//	}
 
 	@Override
 	public void tick() {
@@ -192,73 +187,45 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IHopper,
 			}
 		}
 	}
-
-	private boolean isInventoryFull(IInventory inventoryIn, Direction side) {
-		if (inventoryIn instanceof ISidedInventory) {
-			ISidedInventory isidedinventory = (ISidedInventory) inventoryIn;
-			int[] aint = isidedinventory.getSlotsForFace(side);
-			for (int k : aint) {
-				ItemStack itemstack1 = isidedinventory.getStackInSlot(k);
-				if (itemstack1.isEmpty() || itemstack1.getCount() != itemstack1.getMaxStackSize())
-					return false;
-			}
-		} else {
-			int i = inventoryIn.getSizeInventory();
-			for (int j = 0; j < i; ++j) {
-				ItemStack itemstack = inventoryIn.getStackInSlot(j);
-				if (itemstack.isEmpty() || itemstack.getCount() != itemstack.getMaxStackSize())
-					return false;
-			}
-		}
-		return true;
-	}
-
-	private static boolean isInventoryEmpty(IInventory inventoryIn, Direction side) {
-		if (inventoryIn instanceof ISidedInventory) {
-			ISidedInventory isidedinventory = (ISidedInventory) inventoryIn;
-			int[] aint = isidedinventory.getSlotsForFace(side);
-			for (int i : aint)
-				if (!isidedinventory.getStackInSlot(i).isEmpty())
-					return false;
-		} else {
-			int j = inventoryIn.getSizeInventory();
-			for (int k = 0; k < j; ++k)
-				if (!inventoryIn.getStackInSlot(k).isEmpty())
-					return false;
-		}
-		return true;
-	}
 	
-	public static boolean pullItems(IHopper upper) {
+	private static IntStream inventoryChecked(IInventory inventoryIn, Direction direction) {
+		      return inventoryIn instanceof ISidedInventory ? IntStream.of(((ISidedInventory)inventoryIn).getSlotsForFace(direction)) : IntStream.range(0, inventoryIn.getSizeInventory());
+		   }
+
+	   private boolean isInventoryFull(IInventory inventoryIn, Direction side) {
+		      return inventoryChecked(inventoryIn, side).allMatch((stackInSlot) -> {
+		         ItemStack itemstack = inventoryIn.getStackInSlot(stackInSlot);
+		         return itemstack.getCount() >= itemstack.getMaxStackSize();
+		      });
+		   }
+
+	   private static boolean isInventoryEmpty(IInventory inventoryIn, Direction side) {
+		      return inventoryChecked(inventoryIn, side).allMatch((stackInSlot) -> {
+		         return inventoryIn.getStackInSlot(stackInSlot).isEmpty();
+		      });
+		   }
+	
+	public static boolean pullItems(IUpper upper) {
 		Boolean ret = InventoryCodeHooksTweaked.extractHook(upper);
 		if (ret != null)
 			return ret;
 		IInventory iinventory = getSourceInventory(upper);
 		if (iinventory != null) {
 			Direction direction = Direction.UP;
-			if (isInventoryEmpty(iinventory, direction))
-				return false;
-			if (iinventory instanceof ISidedInventory) {
-				ISidedInventory isidedinventory = (ISidedInventory) iinventory;
-				int[] aint = isidedinventory.getSlotsForFace(direction);
-				for (int i : aint)
-					if (pullItemFromSlot(upper, iinventory, i, direction))
-						return true;
-			} else {
-				int j = iinventory.getSizeInventory();
-				for (int k = 0; k < j; ++k)
-					if (pullItemFromSlot(upper, iinventory, k, direction))
-						return true;
-			}
-		} else {
-			for (ItemEntity entityitem : getCaptureItems(upper))
-				if (captureItem(upper, entityitem))
-					return true;
-		}
-		return false;
-	}
+	         return isInventoryEmpty(iinventory, direction) ? false : inventoryChecked(iinventory, direction).anyMatch((inventoryIn) -> {
+	             return pullItemFromSlot(upper, iinventory, inventoryIn, direction);
+	          });
+	       } else {
+	          for(ItemEntity itementity : getCaptureItems(upper)) {
+	             if (captureItem(upper, itementity)) {
+	                return true;
+	             }
+	          }
+	          return false;
+	       }
+	    }
 
-	private static boolean pullItemFromSlot(IHopper upper, IInventory inventoryIn, int index, Direction direction) {
+	private static boolean pullItemFromSlot(IUpper upper, IInventory inventoryIn, int index, Direction direction) {
 		ItemStack itemstack = inventoryIn.getStackInSlot(index);
 		if (!itemstack.isEmpty() && canExtractItemFromSlot(inventoryIn, itemstack, index, direction)) {
 			ItemStack itemstack1 = itemstack.copy();
@@ -288,11 +255,6 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IHopper,
 	protected IItemHandler createUnSidedHandler() {
 		return new UpperItemHandler(this);
 	}
-	
-	//   @Override
-	//   protected net.minecraftforge.items.IItemHandler createUnSidedHandler() {
-	//      return new net.minecraftforge.items.VanillaHopperItemHandler(this);
-	//   }
 
 	public static ItemStack putStackInInventoryAllSlots(@Nullable IInventory source, IInventory destination, ItemStack stack, @Nullable Direction direction) {
 		if (destination instanceof ISidedInventory && direction != null) {
@@ -360,13 +322,13 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IHopper,
 		return getInventoryAtPosition(getWorld(), pos.offset(direction));
 	}
 
-	public static IInventory getSourceInventory(IHopper upper) {
+	public static IInventory getSourceInventory(IUpper upper) {
 		return getInventoryAtPosition(upper.getWorld(), upper.getXPos(), upper.getYPos() - 1.0D, upper.getZPos());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static List<ItemEntity> getCaptureItems(IHopper upper) {
-		return (List) upper.getCollectionArea().toBoundingBoxList().stream().<ItemEntity>flatMap((something) -> {
+	public static List<ItemEntity> getCaptureItems(IUpper upper) {
+		return (List) upper.getCollectionArea().toBoundingBoxList().stream().flatMap((something) -> {
 					return upper.getWorld().getEntitiesWithinAABB(ItemEntity.class, something.offset(upper.getXPos() - 0.5D, upper.getYPos() - 0.5D, upper.getZPos() - 0.5D), EntityPredicates.IS_ALIVE).stream();
 				}).collect(Collectors.toList());
 	}

@@ -7,7 +7,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.IHopper;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -26,7 +25,7 @@ public class InventoryCodeHooksTweaked
      * @return Null if we did nothing {no IItemHandler}, True if we moved an item, False if we moved no items
      */
     @Nullable
-    public static Boolean extractHook(IHopper dest)
+    public static Boolean extractHook(IUpper dest)
     {
     	return getItemHandler(dest, Direction.DOWN) .map(itemHandlerResult -> {
 
@@ -154,7 +153,7 @@ public class InventoryCodeHooksTweaked
         return stack;
     }
 
-    private static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(IHopper upper, Direction upperFacing)
+    private static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(IUpper upper, Direction upperFacing)
     {
         double x = upper.getXPos() + (double) upperFacing.getXOffset();
         double y = upper.getYPos() + (double) upperFacing.getYOffset();
@@ -188,8 +187,7 @@ public class InventoryCodeHooksTweaked
         return true;
     }
 
-    @SuppressWarnings("deprecation")
-	public static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(World worldIn, double x, double y, double z, final Direction side)
+    public static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(World worldIn, double x, double y, double z, final Direction side)
     {
         int i = MathHelper.floor(x);
         int j = MathHelper.floor(y);

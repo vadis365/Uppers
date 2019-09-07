@@ -10,5 +10,8 @@
 	"tooltip.upper_2": "Sucks items up from block below.",
 	
 	"_comment": "Gui",
-	"container.upper": "Item Upper"
+	"container.upper": "Item Upper",
+
+	"_comment": "Creative Tabs",
+	"itemGroup.uppers": "Uppers"
 }

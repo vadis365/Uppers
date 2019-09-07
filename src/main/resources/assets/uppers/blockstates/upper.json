@@ -1,10 +1,16 @@
 {
     "variants": {
-        "facing=up": { "model": "hopper_down", "x": 180 },
-        "facing=down": { "model": "hopper_down", "x": 180 },
-        "facing=north": { "model": "hopper_side", "x": 180, "y": 180 },
-        "facing=south": { "model": "hopper_side", "x": 180 },
-        "facing=west": { "model": "hopper_side", "x": 180, "y": 90 },
-        "facing=east": { "model": "hopper_side", "x": 180, "y": 270 }
+        "enabled=true,facing=up": { "model": "block/hopper", "x": 180 },
+        "enabled=true,facing=down": { "model": "block/hopper", "x": 180 },
+        "enabled=true,facing=north": { "model": "block/hopper_side", "x": 180, "y": 180 },
+        "enabled=true,facing=south": { "model": "block/hopper_side", "x": 180 },
+        "enabled=true,facing=west": { "model": "block/hopper_side", "x": 180, "y": 90 },
+        "enabled=true,facing=east": { "model": "block/hopper_side", "x": 180, "y": 270 },
+		"enabled=false,facing=up": { "model": "block/hopper", "x": 180 },
+        "enabled=false,facing=down": { "model": "block/hopper", "x": 180 },
+        "enabled=false,facing=north": { "model": "block/hopper_side", "x": 180, "y": 180 },
+        "enabled=false,facing=south": { "model": "block/hopper_side", "x": 180 },
+        "enabled=false,facing=west": { "model": "block/hopper_side", "x": 180, "y": 90 },
+        "enabled=false,facing=east": { "model": "block/hopper_side", "x": 180, "y": 270 }
     }
 }

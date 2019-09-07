@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.client.util.ITooltipFlag;
@@ -29,10 +30,10 @@ public class ModBlocks {
 
 	public static Block UPPER;
 	public static BlockItem UPPER_ITEM;
-	public static final TileEntityType<UpperTileEntity> UPPER_TILE = TileEntityType.Builder.create(UpperTileEntity::new).build(null);
+	public static TileEntityType<UpperTileEntity> UPPER_TILE;
 
 	public static void init() {
-		UPPER = new UpperBlock(Block.Properties.create(Material.IRON, MaterialColor.STONE).hardnessAndResistance(3.0F, 4.8F));//.sound(SoundType.METAL));
+		UPPER = new UpperBlock(Block.Properties.create(Material.IRON, MaterialColor.STONE).hardnessAndResistance(3.0F, 4.8F).sound(SoundType.METAL));
 		UPPER_ITEM = new BlockItem(UPPER, new Item.Properties().group(Uppers.TAB)) {
 			@Override
 			@OnlyIn(Dist.CLIENT)
@@ -41,11 +42,13 @@ public class ModBlocks {
 				tooltip.add(new TranslationTextComponent("tooltip.upper_2"));
 			}
 		};
-		UPPER.setRegistryName(Reference.MOD_ID, "upper");
+		UPPER_TILE = TileEntityType.Builder.create(UpperTileEntity::new, UPPER).build(null);
+		UPPER.setRegistryName(Reference.MOD_ID, Reference.UPPER);
 		UPPER_ITEM.setRegistryName(UPPER.getRegistryName());
+		UPPER_TILE.setRegistryName(Reference.MOD_ID, Reference.UPPER);
 	}
 
-	@Mod.EventBusSubscriber(modid = Reference.MOD_ID)
+	@Mod.EventBusSubscriber(modid = Reference.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 	public static class RegistrationHandlerBlocks {
 		@SubscribeEvent
 		public static void registerBlocks(final RegistryEvent.Register<Block> event) {
@@ -56,25 +59,15 @@ public class ModBlocks {
 
 		@SubscribeEvent
 		public static void registerItemBlocks(final RegistryEvent.Register<Item> event) {
-			final BlockItem[] items = { UPPER_ITEM };
 			final IForgeRegistry<Item> registry = event.getRegistry();
-			for (final BlockItem item : items) {
-				registry.register(item);
-			}
+			registry.register(UPPER_ITEM);
 		}
-		
+
         @SubscribeEvent
         public static void registerTileEntities(RegistryEvent.Register<TileEntityType<?> > event) {
             IForgeRegistry<TileEntityType<?>> registry = event.getRegistry();
-            registry.register(UPPER_TILE.setRegistryName(Reference.MOD_ID, Reference.UPPER));
+            registry.register(UPPER_TILE);
         }
-
-        @OnlyIn(Dist.CLIENT)
-		@SubscribeEvent
-		public static void registerModels(ModelRegistryEvent event) {
-		//	ModelLoader.setCustomModelResourceLocation(UPPER_ITEM, 0, new ModelResourceLocation(UPPER_ITEM.getRegistryName().toString(), "inventory"));
-		//	ModelLoader.setCustomStateMapper((UPPER), (new StateMap.Builder()).ignore(new IProperty[] { UpperBlock.ENABLED }).build());
-		}
 	}
 
 }
