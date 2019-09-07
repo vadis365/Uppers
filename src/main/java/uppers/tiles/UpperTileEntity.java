@@ -7,49 +7,50 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockChest;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ChestBlock;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ContainerHopper;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.ISidedInventoryProvider;
 import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.HopperContainer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.ChestTileEntity;
 import net.minecraft.tileentity.IHopper;
+import net.minecraft.tileentity.ITickableTileEntity;
+import net.minecraft.tileentity.LockableLootTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityChest;
-import net.minecraft.tileentity.TileEntityLockableLoot;
-import net.minecraft.util.EntitySelectors;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
+import net.minecraft.util.Direction;
+import net.minecraft.util.EntityPredicates;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.ShapeUtils;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 import uppers.ModBlocks;
-import uppers.blocks.BlockUpper;
+import uppers.blocks.UpperBlock;
 
-public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, ITickable {
+public class UpperTileEntity  extends LockableLootTileEntity implements IHopper, ITickableTileEntity {
 	private NonNullList<ItemStack> inventory = NonNullList.<ItemStack>withSize(5, ItemStack.EMPTY);
 	private int transferCooldown = -1;
 	private long tickedGameTime;
 	
-	public TileEntityUpper() {
+	public UpperTileEntity() {
 		super(ModBlocks.UPPER_TILE);
 	}
 	
 	@Override
-	public void read(NBTTagCompound compound) {
+	public void read(CompoundNBT compound) {
 		super.read(compound);
 		inventory = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
 		if (!checkLootAndRead(compound))
@@ -60,14 +61,14 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 	}
 
 	@Override
-	public NBTTagCompound write(NBTTagCompound compound) {
+	public CompoundNBT write(CompoundNBT compound) {
 		super.write(compound);
 		if (!checkLootAndWrite(compound))
 			ItemStackHelper.saveAllItems(compound, inventory);
-		compound.setInt("TransferCooldown", transferCooldown);
+		compound.putInt("TransferCooldown", transferCooldown);
 		ITextComponent itextcomponent = getCustomName();
 		if (itextcomponent != null)
-			compound.setString("CustomName", ITextComponent.Serializer.toJson(itextcomponent));
+			compound.putString("CustomName", ITextComponent.Serializer.toJson(itextcomponent));
 		return compound;
 	}
 
@@ -78,13 +79,13 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 
 	@Override
 	public ItemStack decrStackSize(int index, int count) {
-		fillWithLoot((EntityPlayer) null);
+		fillWithLoot((PlayerEntity) null);
 		return ItemStackHelper.getAndSplit(getItems(), index, count);
 	}
 
 	@Override
 	public void setInventorySlotContents(int index, ItemStack stack) {
-		fillWithLoot((EntityPlayer) null);
+		fillWithLoot((PlayerEntity) null);
 		getItems().set(index, stack);
 		if (stack.getCount() > getInventoryStackLimit())
 			stack.setCount(getInventoryStackLimit());
@@ -92,7 +93,12 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 
 	@Override
 	public ITextComponent getName() {
-		return (ITextComponent) (customName != null ? customName : new TextComponentTranslation("container.upper", new Object[0]));
+		return (ITextComponent) (getCustomName() != null ? getCustomName() : new TranslationTextComponent("container.upper", new Object[0]));
+	}
+
+	@Override
+	protected ITextComponent getDefaultName() {
+		return new TranslationTextComponent("container.upper", new Object[0]);
 	}
 
 	@Override
@@ -122,7 +128,7 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 
 	private boolean updateUpper(Supplier<Boolean> supplier) {
 		if (world != null && !world.isRemote) {
-			if (!isOnTransferCooldown() && getBlockState().get(BlockUpper.ENABLED)) {
+			if (!isOnTransferCooldown() && getBlockState().get(UpperBlock.ENABLED)) {
 				boolean flag = false;
 				if (!isInventoryEmpty())
 					flag = transferItemsOut();
@@ -167,15 +173,14 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 		if (iinventory == null)
 			return false;
 		else {
-			EnumFacing enumfacing = ((EnumFacing) this.getBlockState().get(BlockUpper.FACING)).getOpposite();
-			if (isInventoryFull(iinventory, enumfacing))
+			Direction direction = ((Direction) getBlockState().get(UpperBlock.FACING)).getOpposite();
+			if (isInventoryFull(iinventory, direction))
 				return false;
 			else {
 				for (int i = 0; i < getSizeInventory(); ++i) {
 					if (!getStackInSlot(i).isEmpty()) {
 						ItemStack itemstack = getStackInSlot(i).copy();
-						ItemStack itemstack1 = putStackInInventoryAllSlots(this, iinventory, decrStackSize(i, 1),
-								enumfacing);
+						ItemStack itemstack1 = putStackInInventoryAllSlots(this, iinventory, decrStackSize(i, 1), direction);
 						if (itemstack1.isEmpty()) {
 							iinventory.markDirty();
 							return true;
@@ -188,7 +193,7 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 		}
 	}
 
-	private boolean isInventoryFull(IInventory inventoryIn, EnumFacing side) {
+	private boolean isInventoryFull(IInventory inventoryIn, Direction side) {
 		if (inventoryIn instanceof ISidedInventory) {
 			ISidedInventory isidedinventory = (ISidedInventory) inventoryIn;
 			int[] aint = isidedinventory.getSlotsForFace(side);
@@ -208,7 +213,7 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 		return true;
 	}
 
-	private static boolean isInventoryEmpty(IInventory inventoryIn, EnumFacing side) {
+	private static boolean isInventoryEmpty(IInventory inventoryIn, Direction side) {
 		if (inventoryIn instanceof ISidedInventory) {
 			ISidedInventory isidedinventory = (ISidedInventory) inventoryIn;
 			int[] aint = isidedinventory.getSlotsForFace(side);
@@ -230,34 +235,34 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 			return ret;
 		IInventory iinventory = getSourceInventory(upper);
 		if (iinventory != null) {
-			EnumFacing enumfacing = EnumFacing.UP;
-			if (isInventoryEmpty(iinventory, enumfacing))
+			Direction direction = Direction.UP;
+			if (isInventoryEmpty(iinventory, direction))
 				return false;
 			if (iinventory instanceof ISidedInventory) {
 				ISidedInventory isidedinventory = (ISidedInventory) iinventory;
-				int[] aint = isidedinventory.getSlotsForFace(enumfacing);
+				int[] aint = isidedinventory.getSlotsForFace(direction);
 				for (int i : aint)
-					if (pullItemFromSlot(upper, iinventory, i, enumfacing))
+					if (pullItemFromSlot(upper, iinventory, i, direction))
 						return true;
 			} else {
 				int j = iinventory.getSizeInventory();
 				for (int k = 0; k < j; ++k)
-					if (pullItemFromSlot(upper, iinventory, k, enumfacing))
+					if (pullItemFromSlot(upper, iinventory, k, direction))
 						return true;
 			}
 		} else {
-			for (EntityItem entityitem : getCaptureItems(upper))
+			for (ItemEntity entityitem : getCaptureItems(upper))
 				if (captureItem(upper, entityitem))
 					return true;
 		}
 		return false;
 	}
 
-	private static boolean pullItemFromSlot(IHopper upper, IInventory inventoryIn, int index, EnumFacing direction) {
+	private static boolean pullItemFromSlot(IHopper upper, IInventory inventoryIn, int index, Direction direction) {
 		ItemStack itemstack = inventoryIn.getStackInSlot(index);
 		if (!itemstack.isEmpty() && canExtractItemFromSlot(inventoryIn, itemstack, index, direction)) {
 			ItemStack itemstack1 = itemstack.copy();
-			ItemStack itemstack2 = putStackInInventoryAllSlots(inventoryIn, upper, inventoryIn.decrStackSize(index, 1), (EnumFacing) null);
+			ItemStack itemstack2 = putStackInInventoryAllSlots(inventoryIn, upper, inventoryIn.decrStackSize(index, 1), (Direction) null);
 			if (itemstack2.isEmpty()) {
 				inventoryIn.markDirty();
 				return true;
@@ -267,10 +272,10 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 		return false;
 	}
 
-	public static boolean captureItem(IInventory destination, EntityItem entity) {
+	public static boolean captureItem(IInventory destination, ItemEntity entity) {
 		boolean flag = false;
 		ItemStack itemstack = entity.getItem().copy();
-		ItemStack itemstack1 = putStackInInventoryAllSlots((IInventory) null, destination, itemstack, (EnumFacing) null);
+		ItemStack itemstack1 = putStackInInventoryAllSlots((IInventory) null, destination, itemstack, (Direction) null);
 		if (itemstack1.isEmpty()) {
 			flag = true;
 			entity.remove();
@@ -289,7 +294,7 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 	//      return new net.minecraftforge.items.VanillaHopperItemHandler(this);
 	//   }
 
-	public static ItemStack putStackInInventoryAllSlots(@Nullable IInventory source, IInventory destination, ItemStack stack, @Nullable EnumFacing direction) {
+	public static ItemStack putStackInInventoryAllSlots(@Nullable IInventory source, IInventory destination, ItemStack stack, @Nullable Direction direction) {
 		if (destination instanceof ISidedInventory && direction != null) {
 			ISidedInventory isidedinventory = (ISidedInventory) destination;
 			int[] aint = isidedinventory.getSlotsForFace(direction);
@@ -303,18 +308,18 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 		return stack;
 	}
 
-	private static boolean canInsertItemInSlot(IInventory inventoryIn, ItemStack stack, int index, @Nullable EnumFacing side) {
+	private static boolean canInsertItemInSlot(IInventory inventoryIn, ItemStack stack, int index, @Nullable Direction side) {
 		if (!inventoryIn.isItemValidForSlot(index, stack))
 			return false;
 		else
 			return !(inventoryIn instanceof ISidedInventory) || ((ISidedInventory) inventoryIn).canInsertItem(index, stack, side);
 	}
 
-	private static boolean canExtractItemFromSlot(IInventory inventoryIn, ItemStack stack, int index, EnumFacing side) {
+	private static boolean canExtractItemFromSlot(IInventory inventoryIn, ItemStack stack, int index, Direction side) {
 		return !(inventoryIn instanceof ISidedInventory) || ((ISidedInventory) inventoryIn).canExtractItem(index, stack, side);
 	}
 
-	private static ItemStack insertStack(@Nullable IInventory source, IInventory destination, ItemStack stack, int index, @Nullable EnumFacing direction) {
+	private static ItemStack insertStack(@Nullable IInventory source, IInventory destination, ItemStack stack, int index, @Nullable Direction direction) {
 		ItemStack itemstack = destination.getStackInSlot(index);
 		if (canInsertItemInSlot(destination, stack, index, direction)) {
 			boolean flag = false;
@@ -331,12 +336,12 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 				flag = j > 0;
 			}
 			if (flag) {
-				if (flag1 && destination instanceof TileEntityUpper) {
-					TileEntityUpper tileentityupper1 = (TileEntityUpper) destination;
+				if (flag1 && destination instanceof UpperTileEntity) {
+					UpperTileEntity tileentityupper1 = (UpperTileEntity) destination;
 					if (!tileentityupper1.mayTransfer()) {
 						int k = 0;
-						if (source instanceof TileEntityUpper) {
-							TileEntityUpper tileentityupper = (TileEntityUpper) source;
+						if (source instanceof UpperTileEntity) {
+							UpperTileEntity tileentityupper = (UpperTileEntity) source;
 							if (tileentityupper1.tickedGameTime >= tileentityupper.tickedGameTime)
 								k = 1;
 						}
@@ -351,8 +356,8 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 
 	@Nullable
 	private IInventory getInventoryForUpperTransfer() {
-		EnumFacing enumfacing = (EnumFacing) this.getBlockState().get(BlockUpper.FACING);
-		return getInventoryAtPosition(this.getWorld(), this.pos.offset(enumfacing));
+		Direction direction = getBlockState().get(UpperBlock.FACING);
+		return getInventoryAtPosition(getWorld(), pos.offset(direction));
 	}
 
 	public static IInventory getSourceInventory(IHopper upper) {
@@ -360,9 +365,9 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static List<EntityItem> getCaptureItems(IHopper upper) {
-		return (List) upper.getCollectionArea().toBoundingBoxList().stream().<EntityItem>flatMap((something) -> {
-					return upper.getWorld().getEntitiesWithinAABB(EntityItem.class, something.offset(upper.getXPos() - 0.5D, upper.getYPos() - 0.5D, upper.getZPos() - 0.5D), EntitySelectors.IS_ALIVE).stream();
+	public static List<ItemEntity> getCaptureItems(IHopper upper) {
+		return (List) upper.getCollectionArea().toBoundingBoxList().stream().<ItemEntity>flatMap((something) -> {
+					return upper.getWorld().getEntitiesWithinAABB(ItemEntity.class, something.offset(upper.getXPos() - 0.5D, upper.getYPos() - 0.5D, upper.getZPos() - 0.5D), EntityPredicates.IS_ALIVE).stream();
 				}).collect(Collectors.toList());
 	}
 
@@ -375,19 +380,21 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 	public static IInventory getInventoryAtPosition(World world, double x, double y, double z) {
 		IInventory iinventory = null;
 		BlockPos blockpos = new BlockPos(x, y, z);
-		IBlockState state = world.getBlockState(blockpos);
+		BlockState state = world.getBlockState(blockpos);
 		Block block = state.getBlock();
-		if (block.hasTileEntity(state)) {
+		if (block instanceof ISidedInventoryProvider) {
+			iinventory = ((ISidedInventoryProvider)block).createInventory(state, world, blockpos);
+		} else if (state.hasTileEntity()) {
 			TileEntity tileentity = world.getTileEntity(blockpos);
 			if (tileentity instanceof IInventory) {
 				iinventory = (IInventory) tileentity;
-				if (iinventory instanceof TileEntityChest && block instanceof BlockChest) {
-					iinventory = ((BlockChest) block).getContainer(state, world, blockpos, true);
+				if (iinventory instanceof ChestTileEntity && block instanceof ChestBlock) {
+					iinventory = ChestBlock.getInventory(state, world, blockpos, true);
 				}
 			}
 		}
 		if (iinventory == null) {
-			List<Entity> list = world.getEntitiesInAABBexcluding((Entity) null, new AxisAlignedBB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D), EntitySelectors.HAS_INVENTORY);
+			List<Entity> list = world.getEntitiesInAABBexcluding((Entity) null, new AxisAlignedBB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D), EntityPredicates.HAS_INVENTORY);
 
 			if (!list.isEmpty())
 				iinventory = (IInventory) list.get(world.rand.nextInt(list.size()));
@@ -435,14 +442,8 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 	}
 
 	@Override
-	public String getGuiID() {
-		return "minecraft:hopper";
-	}
-
-	@Override
-	public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn) {
-		fillWithLoot(playerIn);
-		return new ContainerHopper(playerInventory, this, playerIn);
+	protected Container createMenu(int id, PlayerInventory player) {
+		return new HopperContainer(id, player, this);
 	}
 
 	@Override
@@ -456,13 +457,13 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 	}
 
 	public void onEntityCollision(Entity entity) {
-		if (entity instanceof EntityItem) {
+		if (entity instanceof ItemEntity) {
 			BlockPos blockpos = getPos();
-			if (ShapeUtils.compare(
-					ShapeUtils.create(entity.getBoundingBox().offset((double) (-blockpos.getX()), (double) (-blockpos.getY()), (double) (-blockpos.getZ()))),
+			if (VoxelShapes.compare(
+					VoxelShapes.create(entity.getBoundingBox().offset((double) (-blockpos.getX()), (double) (-blockpos.getY()), (double) (-blockpos.getZ()))),
 					getCollectionArea(), IBooleanFunction.AND)) {
 				updateUpper(() -> {
-					return captureItem(this, (EntityItem) entity);
+					return captureItem(this, (ItemEntity) entity);
 				});
 			}
 		}
@@ -471,5 +472,5 @@ public class TileEntityUpper extends TileEntityLockableLoot implements IHopper, 
 
 	public long getLastUpdateTime() {
 		return tickedGameTime;
-	} // Forge
+	}
 }

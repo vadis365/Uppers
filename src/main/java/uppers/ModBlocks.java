@@ -5,15 +5,15 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -22,23 +22,23 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.IForgeRegistry;
-import uppers.blocks.BlockUpper;
-import uppers.tiles.TileEntityUpper;
+import uppers.blocks.UpperBlock;
+import uppers.tiles.UpperTileEntity;
 
 public class ModBlocks {
 
 	public static Block UPPER;
-	public static ItemBlock UPPER_ITEM;
-	public static final TileEntityType<TileEntityUpper> UPPER_TILE = TileEntityType.Builder.create(TileEntityUpper::new).build(null);
+	public static BlockItem UPPER_ITEM;
+	public static final TileEntityType<UpperTileEntity> UPPER_TILE = TileEntityType.Builder.create(UpperTileEntity::new).build(null);
 
 	public static void init() {
-		UPPER = new BlockUpper(Block.Builder.create(Material.IRON, MapColor.STONE).hardnessAndResistance(3.0F, 4.8F));//.sound(SoundType.METAL));
-		UPPER_ITEM = new ItemBlock(UPPER, new Item.Builder().group(Uppers.TAB)) {
+		UPPER = new UpperBlock(Block.Properties.create(Material.IRON, MaterialColor.STONE).hardnessAndResistance(3.0F, 4.8F));//.sound(SoundType.METAL));
+		UPPER_ITEM = new BlockItem(UPPER, new Item.Properties().group(Uppers.TAB)) {
 			@Override
 			@OnlyIn(Dist.CLIENT)
 			   public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-				tooltip.add(new TextComponentTranslation("tooltip.upper_1"));
-				tooltip.add(new TextComponentTranslation("tooltip.upper_2"));
+				tooltip.add(new TranslationTextComponent("tooltip.upper_1"));
+				tooltip.add(new TranslationTextComponent("tooltip.upper_2"));
 			}
 		};
 		UPPER.setRegistryName(Reference.MOD_ID, "upper");
@@ -50,18 +50,15 @@ public class ModBlocks {
 		@SubscribeEvent
 		public static void registerBlocks(final RegistryEvent.Register<Block> event) {
 			init();
-			final Block[] blocks = { UPPER };
 			final IForgeRegistry<Block> registry = event.getRegistry();
-			for (final Block block : blocks) {
-				registry.register(block);
-			}
+			registry.register(UPPER);
 		}
 
 		@SubscribeEvent
 		public static void registerItemBlocks(final RegistryEvent.Register<Item> event) {
-			final ItemBlock[] items = { UPPER_ITEM };
+			final BlockItem[] items = { UPPER_ITEM };
 			final IForgeRegistry<Item> registry = event.getRegistry();
-			for (final ItemBlock item : items) {
+			for (final BlockItem item : items) {
 				registry.register(item);
 			}
 		}
@@ -76,7 +73,7 @@ public class ModBlocks {
 		@SubscribeEvent
 		public static void registerModels(ModelRegistryEvent event) {
 		//	ModelLoader.setCustomModelResourceLocation(UPPER_ITEM, 0, new ModelResourceLocation(UPPER_ITEM.getRegistryName().toString(), "inventory"));
-		//	ModelLoader.setCustomStateMapper((UPPER), (new StateMap.Builder()).ignore(new IProperty[] { BlockUpper.ENABLED }).build());
+		//	ModelLoader.setCustomStateMapper((UPPER), (new StateMap.Builder()).ignore(new IProperty[] { UpperBlock.ENABLED }).build());
 		}
 	}
 

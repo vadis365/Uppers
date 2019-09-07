@@ -5,19 +5,19 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.IHopper;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.common.capabilities.OptionalCapabilityInstance;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-import uppers.blocks.BlockUpper;
+import uppers.blocks.UpperBlock;
 
 public class InventoryCodeHooksTweaked
 {
@@ -28,7 +28,7 @@ public class InventoryCodeHooksTweaked
     @Nullable
     public static Boolean extractHook(IHopper dest)
     {
-    	return getItemHandler(dest, EnumFacing.DOWN) .map(itemHandlerResult -> {
+    	return getItemHandler(dest, Direction.DOWN) .map(itemHandlerResult -> {
 
         IItemHandler handler = itemHandlerResult.getKey();
 
@@ -60,9 +60,9 @@ public class InventoryCodeHooksTweaked
 		}).orElse(null); // TODO bad null
 	}
 
-    public static boolean insertHook(TileEntityUpper tileEntityUpper)
+    public static boolean insertHook(UpperTileEntity tileEntityUpper)
     {
-    	EnumFacing upperFacing = tileEntityUpper.getBlockState().get(BlockUpper.FACING);
+    	Direction upperFacing = tileEntityUpper.getBlockState().get(UpperBlock.FACING);
         return getItemHandler(tileEntityUpper, upperFacing)
                 .map(destinationResult -> {
                     IItemHandler itemHandler = destinationResult.getKey();
@@ -129,17 +129,17 @@ public class InventoryCodeHooksTweaked
 
             if (insertedItem)
             {
-                if (inventoryWasEmpty && destination instanceof TileEntityUpper)
+                if (inventoryWasEmpty && destination instanceof UpperTileEntity)
                 {
-                    TileEntityUpper destinationUpper = (TileEntityUpper)destination;
+                    UpperTileEntity destinationUpper = (UpperTileEntity)destination;
 
                     if (!destinationUpper.mayTransfer())
                     {
                         int k = 0;
 
-                        if (source instanceof TileEntityUpper)
+                        if (source instanceof UpperTileEntity)
                         {
-                            if (destinationUpper.getLastUpdateTime() >= ((TileEntityUpper) source).getLastUpdateTime())
+                            if (destinationUpper.getLastUpdateTime() >= ((UpperTileEntity) source).getLastUpdateTime())
                             {
                                 k = 1;
                             }
@@ -154,7 +154,7 @@ public class InventoryCodeHooksTweaked
         return stack;
     }
 
-    private static OptionalCapabilityInstance<Pair<IItemHandler, Object>> getItemHandler(IHopper upper, EnumFacing upperFacing)
+    private static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(IHopper upper, Direction upperFacing)
     {
         double x = upper.getXPos() + (double) upperFacing.getXOffset();
         double y = upper.getYPos() + (double) upperFacing.getYOffset();
@@ -189,16 +189,15 @@ public class InventoryCodeHooksTweaked
     }
 
     @SuppressWarnings("deprecation")
-	public static OptionalCapabilityInstance<Pair<IItemHandler, Object>> getItemHandler(World worldIn, double x, double y, double z, final EnumFacing side)
+	public static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(World worldIn, double x, double y, double z, final Direction side)
     {
         int i = MathHelper.floor(x);
         int j = MathHelper.floor(y);
         int k = MathHelper.floor(z);
         BlockPos blockpos = new BlockPos(i, j, k);
-        net.minecraft.block.state.IBlockState state = worldIn.getBlockState(blockpos);
-        Block block = state.getBlock();
+        BlockState state = worldIn.getBlockState(blockpos);
 
-        if (block.hasTileEntity(/* TODO Block patches // state */))
+        if (state.hasTileEntity())
         {
             TileEntity tileentity = worldIn.getTileEntity(blockpos);
             if (tileentity != null)
@@ -208,6 +207,6 @@ public class InventoryCodeHooksTweaked
             }
         }
 
-        return OptionalCapabilityInstance.empty();
+        return LazyOptional.empty();
     }
 }

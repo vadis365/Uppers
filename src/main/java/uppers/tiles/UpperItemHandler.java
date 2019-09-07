@@ -7,9 +7,9 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 
 public class UpperItemHandler extends InvWrapper
 {
-    private final TileEntityUpper upper;
+    private final UpperTileEntity upper;
 
-    public UpperItemHandler(TileEntityUpper upper)
+    public UpperItemHandler(UpperTileEntity upper)
     {
         super(upper);
         this.upper = upper;
