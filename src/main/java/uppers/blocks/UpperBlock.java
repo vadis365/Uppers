@@ -56,12 +56,14 @@ public class UpperBlock extends ContainerBlock {
 
 	public UpperBlock(Block.Properties properties) {
 		super(properties);
-		setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.DOWN).with(ENABLED, Boolean.valueOf(true)));
+		setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.UP).with(ENABLED, Boolean.valueOf(true)));
 	}
 
 	@Override
 	public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
 		switch (state.get(FACING)) {
+		case UP:
+			return DOWN_SHAPE;
 		case DOWN:
 			return DOWN_SHAPE;
 		case NORTH:
@@ -80,6 +82,8 @@ public class UpperBlock extends ContainerBlock {
 	@Override
 	public VoxelShape getRaytraceShape(BlockState state, IBlockReader worldIn, BlockPos pos) {
 		switch (state.get(FACING)) {
+		case UP:
+			return DOWN_RAYTRACE_SHAPE;
 		case DOWN:
 			return DOWN_RAYTRACE_SHAPE;
 		case NORTH:

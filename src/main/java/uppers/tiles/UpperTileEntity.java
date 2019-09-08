@@ -210,7 +210,7 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, 
 			return ret;
 		IInventory iinventory = getSourceInventory(upper);
 		if (iinventory != null) {
-			Direction direction = Direction.UP;
+			Direction direction = Direction.DOWN;
 	         return isInventoryEmpty(iinventory, direction) ? false : inventoryChecked(iinventory, direction).anyMatch((inventoryIn) -> {
 	             return pullItemFromSlot(upper, iinventory, inventoryIn, direction);
 	          });
@@ -373,6 +373,11 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, 
 		} else {
 			return ItemStack.areItemStackTagsEqual(stack1, stack2);
 		}
+	}
+	
+	@Override
+	public World getWorld() {
+		return this.world;
 	}
 
 	@Override

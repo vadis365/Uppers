@@ -27,7 +27,7 @@ public class InventoryCodeHooksTweaked
     @Nullable
     public static Boolean extractHook(IUpper dest)
     {
-    	return getItemHandler(dest, Direction.DOWN) .map(itemHandlerResult -> {
+    	return getItemHandler(dest, Direction.DOWN).map(itemHandlerResult -> {
 
         IItemHandler handler = itemHandlerResult.getKey();
 
