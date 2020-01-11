@@ -350,7 +350,7 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, 
 			if (tileentity instanceof IInventory) {
 				iinventory = (IInventory) tileentity;
 				if (iinventory instanceof ChestTileEntity && block instanceof ChestBlock) {
-					iinventory = ChestBlock.getInventory(state, world, blockpos, true);
+					iinventory = ChestBlock.func_226916_a_((ChestBlock)block, state, world, blockpos, true); //getInventory
 				}
 			}
 		}

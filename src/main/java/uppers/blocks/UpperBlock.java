@@ -18,7 +18,7 @@ import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.stats.Stats;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Mirror;
@@ -31,8 +31,6 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import uppers.tiles.IUpper;
 import uppers.tiles.UpperTileEntity;
 
@@ -125,17 +123,18 @@ public class UpperBlock extends ContainerBlock {
 			this.updateState(worldIn, pos, state);
 	}
 
+	// onBlockActivated
 	@Override
-	public boolean onBlockActivated(BlockState state, World world, BlockPos pos,  PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
+	public ActionResultType func_225533_a_(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult hit) {
 		if (world.isRemote) {
-			return true;
+			return ActionResultType.SUCCESS;
 		} else {
 			TileEntity tileentity = world.getTileEntity(pos);
 			if (tileentity instanceof UpperTileEntity) {
 				player.openContainer((UpperTileEntity) tileentity);
 				player.addStat(Stats.INSPECT_HOPPER);
 			}
-			return true;
+			return ActionResultType.SUCCESS;
 		}
 	}
 
@@ -175,12 +174,6 @@ public class UpperBlock extends ContainerBlock {
 	@Override
 	public int getComparatorInputOverride(BlockState blockState, World worldIn, BlockPos pos) {
 		return Container.calcRedstone(worldIn.getTileEntity(pos));
-	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public BlockRenderLayer getRenderLayer() {
-		return BlockRenderLayer.CUTOUT_MIPPED;
 	}
 
 	@Override
