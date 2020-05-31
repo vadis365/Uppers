@@ -21,13 +21,6 @@ public class Uppers {
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
-	public static ItemGroup TAB = new ItemGroup(Reference.MOD_ID) {
-		@Override
-		public ItemStack createIcon() {
-			return new ItemStack(ModBlocks.UPPER_ITEM);
-		}
-	};
-
 	private void setup(final FMLCommonSetupEvent event) {}
 
 	private void doClientStuff(final FMLClientSetupEvent event) {}
