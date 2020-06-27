@@ -11,6 +11,7 @@ import net.minecraft.block.material.MaterialColor;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.text.ITextComponent;
@@ -32,7 +33,7 @@ public class ModBlocks {
 
 	public static void init() {
 		UPPER = new UpperBlock(Block.Properties.create(Material.IRON, MaterialColor.STONE).hardnessAndResistance(3.0F, 4.8F).sound(SoundType.METAL));
-		UPPER_ITEM = new BlockItem(UPPER, new Item.Properties().group(Uppers.TAB)) {
+		UPPER_ITEM = new BlockItem(UPPER, new Item.Properties().group(ItemGroup.REDSTONE)) {
 			@Override
 			@OnlyIn(Dist.CLIENT)
 			   public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
