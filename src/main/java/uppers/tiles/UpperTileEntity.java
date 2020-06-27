@@ -167,14 +167,16 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, 
 		if (iinventory == null)
 			return false;
 		else {
-			Direction direction = ((Direction) getBlockState().get(UpperBlock.FACING)).getOpposite();
-			if (isInventoryFull(iinventory, direction))
+			Direction blockDirection = getBlockState().get(UpperBlock.FACING);
+			// Lie, when the block Direction is up, the real direction is Down, but Up works better with vanila containers.
+			Direction itemDirection = blockDirection == Direction.UP ? blockDirection : blockDirection.getOpposite();
+			if (isInventoryFull(iinventory, itemDirection))
 				return false;
 			else {
 				for (int i = 0; i < getSizeInventory(); ++i) {
 					if (!getStackInSlot(i).isEmpty()) {
 						ItemStack itemstack = getStackInSlot(i).copy();
-						ItemStack itemstack1 = putStackInInventoryAllSlots(this, iinventory, decrStackSize(i, 1), direction);
+						ItemStack itemstack1 = putStackInInventoryAllSlots(this, iinventory, decrStackSize(i, 1), itemDirection);
 						if (itemstack1.isEmpty()) {
 							iinventory.markDirty();
 							return true;
@@ -210,6 +212,7 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, 
 			return ret;
 		IInventory iinventory = getSourceInventory(upper);
 		if (iinventory != null) {
+			// Lie, real direction is Up, but Down is more compatible with vanilla containers.
 			Direction direction = Direction.DOWN;
 	         return isInventoryEmpty(iinventory, direction) ? false : inventoryChecked(iinventory, direction).anyMatch((inventoryIn) -> {
 	             return pullItemFromSlot(upper, iinventory, inventoryIn, direction);

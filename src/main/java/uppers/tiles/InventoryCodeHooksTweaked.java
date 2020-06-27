@@ -27,7 +27,8 @@ public class InventoryCodeHooksTweaked
     @Nullable
     public static Boolean extractHook(IUpper dest)
     {
-    	return getItemHandler(dest, Direction.DOWN).map(itemHandlerResult -> {
+        // Lie, real direction is Down & Up, but Down & Down is more compatible with vanilla containers.
+        return getItemHandler(dest, Direction.DOWN, Direction.DOWN).map(itemHandlerResult -> {
 
         IItemHandler handler = itemHandlerResult.getKey();
 
@@ -153,12 +154,15 @@ public class InventoryCodeHooksTweaked
         return stack;
     }
 
-    private static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(IUpper upper, Direction upperFacing)
+    private static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(IUpper upper, Direction upperFacing) {
+        return getItemHandler(upper, upperFacing, upperFacing.getOpposite());
+    }
+    private static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(IUpper upper, Direction upperFacing, Direction invetoryFacing)
     {
         double x = upper.getXPos() + (double) upperFacing.getXOffset();
         double y = upper.getYPos() + (double) upperFacing.getYOffset();
         double z = upper.getZPos() + (double) upperFacing.getZOffset();
-        return getItemHandler(upper.getWorld(), x, y, z, upperFacing.getOpposite());
+        return getItemHandler(upper.getWorld(), x, y, z, invetoryFacing);
     }
 
     private static boolean isFull(IItemHandler itemHandler)
