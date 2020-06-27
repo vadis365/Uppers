@@ -40,7 +40,7 @@ import net.minecraftforge.items.IItemHandler;
 import uppers.ModBlocks;
 import uppers.blocks.UpperBlock;
 
-public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, ITickableTileEntity {
+public class UpperTileEntity extends LockableLootTileEntity implements IUpper, ITickableTileEntity {
 	private NonNullList<ItemStack> inventory = NonNullList.withSize(5, ItemStack.EMPTY);
 	private int transferCooldown = -1;
 	private long tickedGameTime;
@@ -50,13 +50,13 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, 
 	}
 
 	@Override
-	public void read(CompoundNBT compound) {
-		super.read(compound);
+	public void func_230337_a_(BlockState state, CompoundNBT compound) {
+		super.func_230337_a_(state, compound);
 		inventory = NonNullList.withSize(getSizeInventory(), ItemStack.EMPTY);
 		if (!checkLootAndRead(compound))
 			ItemStackHelper.loadAllItems(compound, inventory);
-		if (compound.contains("CustomName", 8))
-			setCustomName(ITextComponent.Serializer.fromJson(compound.getString("CustomName")));
+	//	if (compound.contains("CustomName", 8))
+		//	setCustomName(ITextComponent.Serializer.fromJson(compound.getString("CustomName")));
 		transferCooldown = compound.getInt("TransferCooldown");
 	}
 
@@ -66,9 +66,9 @@ public class UpperTileEntity  extends LockableLootTileEntity implements IUpper, 
 		if (!checkLootAndWrite(compound))
 			ItemStackHelper.saveAllItems(compound, inventory);
 		compound.putInt("TransferCooldown", transferCooldown);
-		ITextComponent itextcomponent = getCustomName();
-		if (itextcomponent != null)
-			compound.putString("CustomName", ITextComponent.Serializer.toJson(itextcomponent));
+	//	ITextComponent itextcomponent = getCustomName();
+	//	if (itextcomponent != null)
+		//	compound.putString("CustomName", ITextComponent.Serializer.toJson(itextcomponent));
 		return compound;
 	}
 
