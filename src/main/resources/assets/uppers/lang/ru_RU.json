@@ -1,0 +1,7 @@
+{
+  "tile.uppers.upper.name": "Перевёрнутая воронка",
+  "itemGroup.uppers": "Just An Upper",
+  "tooltip.upper_1": "Работает как в обратном порядке воронка.",
+  "tooltip.upper_2": "Высасывает предметы из блока ниже.",
+  "container.upper": "Перевёрнутая воронка для предметов"
+}
