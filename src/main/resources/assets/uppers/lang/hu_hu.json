@@ -1,0 +1,17 @@
+{
+	"_comment": "Items",
+	"item.uppers.upper_item": "Fordított tölcsér",
+	
+	"_comment": "Blocks",
+	"block.uppers.upper": "Fordított tölcsér",
+	  
+	"_comment": "Tool Tips",
+	"tooltip.upper_1": "Úgy működik mint egy tölcsér csak felfordítva.",
+	"tooltip.upper_2": "Az alatta lévő tárgyakat felszívja.",
+	
+	"_comment": "Gui",
+	"container.upper": "Fordított tárgy tölcsér",
+
+	"_comment": "Creative Tabs",
+	"itemGroup.uppers": "Fordított tölcsérek"
+}
