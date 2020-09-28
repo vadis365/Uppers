@@ -1,5 +1,7 @@
 package uppers.tiles;
 
+import java.util.Optional;
+
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -12,7 +14,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -153,7 +154,7 @@ public class InventoryCodeHooksTweaked
         return stack;
     }
 
-    private static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(IUpper upper, Direction upperFacing)
+    private static Optional<Pair<IItemHandler, Object>> getItemHandler(IUpper upper, Direction upperFacing)
     {
         double x = upper.getXPos() + (double) upperFacing.getXOffset();
         double y = upper.getYPos() + (double) upperFacing.getYOffset();
@@ -187,7 +188,7 @@ public class InventoryCodeHooksTweaked
         return true;
     }
 
-    public static LazyOptional<Pair<IItemHandler, Object>> getItemHandler(World worldIn, double x, double y, double z, final Direction side)
+    public static Optional<Pair<IItemHandler, Object>> getItemHandler(World worldIn, double x, double y, double z, final Direction side)
     {
         int i = MathHelper.floor(x);
         int j = MathHelper.floor(y);
@@ -205,6 +206,6 @@ public class InventoryCodeHooksTweaked
             }
         }
 
-        return LazyOptional.empty();
+        return Optional.empty();
     }
 }
