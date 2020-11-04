@@ -15,7 +15,7 @@ displayURL="https://github.com/vadis365/Uppers"
     # The modid of the mod
     modId="uppers" #mandatory
     # The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-    version="0.3.1" #mandatory
+    version="0.3.2" #mandatory
      # A display name for the mod
     displayName="Uppers" #mandatory
     credits="Thanks to people and stuff." #optional
