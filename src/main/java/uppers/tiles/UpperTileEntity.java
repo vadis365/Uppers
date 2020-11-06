@@ -50,8 +50,8 @@ public class UpperTileEntity extends LockableLootTileEntity implements IUpper, I
 	}
 
 	@Override
-	public void func_230337_a_(BlockState state, CompoundNBT compound) {
-		super.func_230337_a_(state, compound);
+	public void read(BlockState state, CompoundNBT compound) {
+		super.read(state, compound);
 		inventory = NonNullList.withSize(getSizeInventory(), ItemStack.EMPTY);
 		if (!checkLootAndRead(compound))
 			ItemStackHelper.loadAllItems(compound, inventory);
@@ -350,7 +350,7 @@ public class UpperTileEntity extends LockableLootTileEntity implements IUpper, I
 			if (tileentity instanceof IInventory) {
 				iinventory = (IInventory) tileentity;
 				if (iinventory instanceof ChestTileEntity && block instanceof ChestBlock) {
-					iinventory = ChestBlock.func_226916_a_((ChestBlock)block, state, world, blockpos, true); //getInventory
+					iinventory = ChestBlock.getChestInventory((ChestBlock)block, state, world, blockpos, true); //getInventory
 				}
 			}
 		}
