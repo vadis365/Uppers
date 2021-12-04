@@ -93,6 +93,7 @@ public class UpperBlockEntity extends RandomizableContainerBlockEntity implement
 	}
 
 	 public static void pushItemsTick(Level level, BlockPos pos, BlockState state, UpperBlockEntity blockEntity) {
+		 
 	      --blockEntity.cooldownTime;
 	      blockEntity.tickedGameTime = level.getGameTime();
 	      if (!blockEntity.isOnCooldown()) {
@@ -104,7 +105,7 @@ public class UpperBlockEntity extends RandomizableContainerBlockEntity implement
 	}
 
 	private static boolean tryMoveItems(Level level, BlockPos pos, BlockState state, UpperBlockEntity blockEntity, BooleanSupplier supplier) {
-		if (!level.isClientSide) {
+		if (level.isClientSide) {
 			return false;
     	} else {
 			if (!blockEntity.isOnCooldown() && state.getValue(UpperBlock.ENABLED)) {
