@@ -115,8 +115,7 @@ public class UpperBlock extends BaseEntityBlock {
 	}
 
 	@Nullable
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
-			BlockEntityType<T> type) {
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
 		return level.isClientSide ? null : createTickerHelper(type, ModBlocks.UPPER_TILE, UpperBlockEntity::pushItemsTick);
 	}
 
@@ -163,7 +162,7 @@ public class UpperBlock extends BaseEntityBlock {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.is(newState.getBlock())) {
+		if (!state.is(newState.getBlock())) {
 			BlockEntity tileentity = level.getBlockEntity(pos);
 			if (tileentity instanceof UpperBlockEntity) {
 				Containers.dropContents(level, pos, (UpperBlockEntity) tileentity);
