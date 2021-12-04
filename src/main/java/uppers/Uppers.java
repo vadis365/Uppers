@@ -1,7 +1,7 @@
 package uppers;
 
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -21,9 +21,9 @@ public class Uppers {
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
-	public static ItemGroup TAB = new ItemGroup(Reference.MOD_ID) {
+	public static CreativeModeTab TAB = new CreativeModeTab(Reference.MOD_ID) {
 		@Override
-		public ItemStack createIcon() {
+		public ItemStack makeIcon() {
 			return new ItemStack(ModBlocks.UPPER_ITEM);
 		}
 	};

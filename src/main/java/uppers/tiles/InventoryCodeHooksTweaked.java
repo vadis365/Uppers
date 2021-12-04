@@ -7,13 +7,13 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -26,9 +26,9 @@ public class InventoryCodeHooksTweaked
      * @return Null if we did nothing {no IItemHandler}, True if we moved an item, False if we moved no items
      */
     @Nullable
-    public static Boolean extractHook(IUpper dest)
+    public static Boolean extractHook(Level level, IUpper dest)
     {
-    	return getItemHandler(dest, Direction.DOWN).map(itemHandlerResult -> {
+    	return getItemHandler(level, dest, Direction.DOWN).map(itemHandlerResult -> {
 
         IItemHandler handler = itemHandlerResult.getKey();
 
@@ -37,20 +37,20 @@ public class InventoryCodeHooksTweaked
             ItemStack extractItem = handler.extractItem(i, 1, true);
             if (!extractItem.isEmpty())
             {
-                for (int j = 0; j < dest.getSizeInventory(); j++)
+                for (int j = 0; j < dest.getContainerSize(); j++)
                 {
-                    ItemStack destStack = dest.getStackInSlot(j);
-                    if (dest.isItemValidForSlot(j, extractItem) && (destStack.isEmpty() || destStack.getCount() < destStack.getMaxStackSize() && destStack.getCount() < dest.getInventoryStackLimit() && ItemHandlerHelper.canItemStacksStack(extractItem, destStack)))
+                    ItemStack destStack = dest.getItem(j);
+                    if (dest.canPlaceItem(j, extractItem) && (destStack.isEmpty() || destStack.getCount() < destStack.getMaxStackSize() && destStack.getCount() < dest.getMaxStackSize() && ItemHandlerHelper.canItemStacksStack(extractItem, destStack)))
                     {
                         extractItem = handler.extractItem(i, 1, false);
                         if (destStack.isEmpty())
-                            dest.setInventorySlotContents(j, extractItem);
+                            dest.setItem(j, extractItem);
                         else
                         {
                             destStack.grow(1);
-                            dest.setInventorySlotContents(j, destStack);
+                            dest.setItem(j, destStack);
                         }
-                        dest.markDirty();
+                        dest.setChanged();
                         return true;
                     }
                 }
@@ -60,10 +60,10 @@ public class InventoryCodeHooksTweaked
 		}).orElse(null); // TODO bad null
 	}
 
-    public static boolean insertHook(UpperTileEntity tileEntityUpper)
+    public static boolean insertHook(UpperBlockEntity tileEntityUpper)
     {
-    	Direction upperFacing = tileEntityUpper.getBlockState().get(UpperBlock.FACING);
-        return getItemHandler(tileEntityUpper, upperFacing)
+    	Direction upperFacing = tileEntityUpper.getBlockState().getValue(UpperBlock.FACING);
+        return getItemHandler(tileEntityUpper.getLevel(), tileEntityUpper, upperFacing)
                 .map(destinationResult -> {
                     IItemHandler itemHandler = destinationResult.getKey();
                     Object destination = destinationResult.getValue();
@@ -73,12 +73,12 @@ public class InventoryCodeHooksTweaked
                     }
             else
             {
-                for (int i = 0; i < tileEntityUpper.getSizeInventory(); ++i)
+                for (int i = 0; i < tileEntityUpper.getContainerSize(); ++i)
                 {
-                    if (!tileEntityUpper.getStackInSlot(i).isEmpty())
+                    if (!tileEntityUpper.getItem(i).isEmpty())
                     {
-                        ItemStack originalSlotContents = tileEntityUpper.getStackInSlot(i).copy();
-                        ItemStack insertStack = tileEntityUpper.decrStackSize(i, 1);
+                        ItemStack originalSlotContents = tileEntityUpper.getItem(i).copy();
+                        ItemStack insertStack = tileEntityUpper.removeItem(i, 1);
                         ItemStack remainder = putStackInInventoryAllSlots(tileEntityUpper, destination, itemHandler, insertStack);
 
                         if (remainder.isEmpty())
@@ -86,7 +86,7 @@ public class InventoryCodeHooksTweaked
                             return true;
                         }
 
-                        tileEntityUpper.setInventorySlotContents(i, originalSlotContents);
+                        tileEntityUpper.setItem(i, originalSlotContents);
                     }
                 }
 
@@ -96,7 +96,7 @@ public class InventoryCodeHooksTweaked
                 .orElse(false);
     }
 
-    private static ItemStack putStackInInventoryAllSlots(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack)
+    private static ItemStack putStackInInventoryAllSlots(BlockEntity source, Object destination, IItemHandler destInventory, ItemStack stack)
     {
         for (int slot = 0; slot < destInventory.getSlots() && !stack.isEmpty(); slot++)
         {
@@ -105,7 +105,7 @@ public class InventoryCodeHooksTweaked
         return stack;
     }
 
-    private static ItemStack insertStack(TileEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot)
+    private static ItemStack insertStack(BlockEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot)
     {
         ItemStack itemstack = destInventory.getStackInSlot(slot);
 
@@ -129,23 +129,23 @@ public class InventoryCodeHooksTweaked
 
             if (insertedItem)
             {
-                if (inventoryWasEmpty && destination instanceof UpperTileEntity)
+                if (inventoryWasEmpty && destination instanceof UpperBlockEntity)
                 {
-                    UpperTileEntity destinationUpper = (UpperTileEntity)destination;
+                    UpperBlockEntity destinationUpper = (UpperBlockEntity)destination;
 
-                    if (!destinationUpper.mayTransfer())
+                    if (!destinationUpper.isOnCustomCooldown())
                     {
                         int k = 0;
 
-                        if (source instanceof UpperTileEntity)
+                        if (source instanceof UpperBlockEntity)
                         {
-                            if (destinationUpper.getLastUpdateTime() >= ((UpperTileEntity) source).getLastUpdateTime())
+                            if (destinationUpper.getLastUpdateTime() >= ((UpperBlockEntity) source).getLastUpdateTime())
                             {
                                 k = 1;
                             }
                         }
 
-                        destinationUpper.setTransferCooldown(8 - k);
+                        destinationUpper.setCooldown(8 - k);
                     }
                 }
             }
@@ -154,12 +154,12 @@ public class InventoryCodeHooksTweaked
         return stack;
     }
 
-    private static Optional<Pair<IItemHandler, Object>> getItemHandler(IUpper upper, Direction upperFacing)
+    private static Optional<Pair<IItemHandler, Object>> getItemHandler(Level level, IUpper upper, Direction upperFacing)
     {
-        double x = upper.getXPos() + (double) upperFacing.getXOffset();
-        double y = upper.getYPos() + (double) upperFacing.getYOffset();
-        double z = upper.getZPos() + (double) upperFacing.getZOffset();
-        return getItemHandler(upper.getWorld(), x, y, z, upperFacing.getOpposite());
+        double x = upper.getLevelX() + (double) upperFacing.getStepX();
+        double y = upper.getLevelY() + (double) upperFacing.getStepY();
+        double z = upper.getLevelZ() + (double) upperFacing.getStepZ();
+        return getItemHandler(level, x, y, z, upperFacing.getOpposite());
     }
 
     private static boolean isFull(IItemHandler itemHandler)
@@ -188,17 +188,17 @@ public class InventoryCodeHooksTweaked
         return true;
     }
 
-    public static Optional<Pair<IItemHandler, Object>> getItemHandler(World worldIn, double x, double y, double z, final Direction side)
+    public static Optional<Pair<IItemHandler, Object>> getItemHandler(Level level, double x, double y, double z, final Direction side)
     {
-        int i = MathHelper.floor(x);
-        int j = MathHelper.floor(y);
-        int k = MathHelper.floor(z);
+        int i = Mth.floor(x);
+        int j = Mth.floor(y);
+        int k = Mth.floor(z);
         BlockPos blockpos = new BlockPos(i, j, k);
-        BlockState state = worldIn.getBlockState(blockpos);
+        BlockState state = level.getBlockState(blockpos);
 
-        if (state.hasTileEntity())
+        if (state.hasBlockEntity())
         {
-            TileEntity tileentity = worldIn.getTileEntity(blockpos);
+            BlockEntity tileentity = level .getBlockEntity(blockpos);
             if (tileentity != null)
             {
                 return tileentity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)

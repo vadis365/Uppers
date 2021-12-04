@@ -1,11 +1,11 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
+        // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
+        maven { url = 'https://maven.minecraftforge.net' }
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -13,14 +13,15 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '0.3.2'
+version = '0.4.0'
 group = 'some people' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'Uppers'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'snapshot', version: '20201028-1.16.3'
+       mappings channel: 'official', version: '1.18'
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
     //accessTransformer = file('my_at.cfg')
@@ -63,7 +64,7 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.4-35.0.22'
+    minecraft 'net.minecraftforge:forge:1.18-38.0.14'
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
@@ -73,7 +74,7 @@ jar {
                     "Specification-Vendor": "vadis365",
                     "Specification-Version": "1", // We are version 1 of the modlauncher specification
                     "Implementation-Title": project.name,
-                    "Implementation-Version": "0.3.2",
+                    "Implementation-Version": "0.4.0",
                     "Implementation-Vendor" :"vadis365",
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")],)
     }

@@ -2,13 +2,13 @@ package uppers.tiles;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 public class UpperItemHandler extends InvWrapper {
-	private final UpperTileEntity upper;
+	private final UpperBlockEntity upper;
 
-	public UpperItemHandler(UpperTileEntity upper) {
+	public UpperItemHandler(UpperBlockEntity upper) {
 		super(upper);
 		this.upper = upper;
 	}
@@ -23,8 +23,8 @@ public class UpperItemHandler extends InvWrapper {
 			int originalStackSize = stack.getCount();
 			stack = super.insertItem(slot, stack, simulate);
 			if (wasEmpty && originalStackSize > stack.getCount())
-				if (!upper.mayTransfer())
-					upper.setTransferCooldown(8);
+				if (!upper.isOnCustomCooldown())
+					upper.setCooldown(8);
 			return stack;
 		}
 	}
