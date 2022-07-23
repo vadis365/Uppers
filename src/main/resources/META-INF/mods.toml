@@ -6,7 +6,7 @@
 # The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
 modLoader="javafml" #mandatory
 # A version range to match for said mod loader - for regular FML @Mod it will be the forge version
-loaderVersion="[40,)" #mandatory
+loaderVersion="[41,)" #mandatory
 license="All rights reserved"
 issueTrackerURL="https://github.com/vadis365/Uppers/issues"
 displayURL="https://github.com/vadis365/Uppers"
@@ -15,7 +15,7 @@ displayURL="https://github.com/vadis365/Uppers"
     # The modid of the mod
     modId="uppers" #mandatory
     # The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-    version="0.4.1" #mandatory
+    version="0.5.0" #mandatory
      # A display name for the mod
     displayName="Uppers" #mandatory
     credits="Thanks to people and stuff." #optional
@@ -31,7 +31,7 @@ A mod that adds upside-down hoppers.
     # Does this dependency have to exist - if not, ordering below must be specified
     mandatory=true #mandatory
     # The version range of the dependency
-    versionRange="[40,)" #mandatory
+    versionRange="[41,)" #mandatory
     # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT or SERVER
@@ -40,6 +40,6 @@ A mod that adds upside-down hoppers.
 [[dependencies.uppers]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.18.2,1.19]"
+    versionRange="[1.19,1.20)"
     ordering="NONE"
     side="BOTH"
