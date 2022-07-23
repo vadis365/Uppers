@@ -35,7 +35,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.items.IItemHandler;
-import uppers.ModBlocks;
+import uppers.Uppers;
 import uppers.blocks.UpperBlock;
 
 public class UpperBlockEntity extends RandomizableContainerBlockEntity implements IUpper {
@@ -44,7 +44,7 @@ public class UpperBlockEntity extends RandomizableContainerBlockEntity implement
 	private long tickedGameTime;
 
 	public UpperBlockEntity(BlockPos pos, BlockState state) {
-		super(ModBlocks.UPPER_TILE, pos, state);
+		super(Uppers.UPPER_TILE.get(), pos, state);
 	}
 
 	@Override
@@ -297,7 +297,6 @@ public class UpperBlockEntity extends RandomizableContainerBlockEntity implement
 		return getContainerAt(level, upper.getLevelX(), upper.getLevelY() - 1.0D, upper.getLevelZ());
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static List<ItemEntity> getItemsAtAndAbove(Level level, IUpper upper) {
 		return upper.getSuckShape().toAabbs().stream().flatMap((something) -> {
 					return level.getEntitiesOfClass(ItemEntity.class, something.move(upper.getLevelX() - 0.5D, upper.getLevelY() - 0.5D, upper.getLevelZ() - 0.5D), EntitySelector.ENTITY_STILL_ALIVE).stream();

@@ -36,7 +36,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import uppers.ModBlocks;
+import uppers.Uppers;
 import uppers.tiles.IUpper;
 import uppers.tiles.UpperBlockEntity;
 
@@ -116,7 +116,7 @@ public class UpperBlock extends BaseEntityBlock {
 
 	@Nullable
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-		return level.isClientSide ? null : createTickerHelper(type, ModBlocks.UPPER_TILE, UpperBlockEntity::pushItemsTick);
+		return level.isClientSide ? null : createTickerHelper(type, Uppers.UPPER_TILE.get(), UpperBlockEntity::pushItemsTick);
 	}
 
 	@Override
