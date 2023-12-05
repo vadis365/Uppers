@@ -1,24 +1,26 @@
-plugins {
-    id 'eclipse'
-    id 'idea'
-    id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+    }
 }
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 
 version = '1.0.0'
-
 group = 'some people' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-base {
-    archivesName = 'Uppers'
-}
+archivesBaseName = 'Uppers'
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'official', version: '1.20.1'
+    mappings channel: 'official', version: "1.20.1"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-  	copyIdeResources = true
     //accessTransformer = file('my_at.cfg')
 
     // default run configurations.
@@ -59,11 +61,11 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
+        minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
-tasks.named('jar', Jar).configure {
+jar {
     manifest {
         attributes(["Specification-Title": "uppers",
                     "Specification-Vendor": "vadis365",
@@ -71,25 +73,6 @@ tasks.named('jar', Jar).configure {
                     "Implementation-Title": project.name,
                     "Implementation-Version": "1.0.0",
                     "Implementation-Vendor" :"vadis365",
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")        ])
     }
-        finalizedBy 'reobfJar'
-}
-
-
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/mcmodsrepo"
-        }
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
