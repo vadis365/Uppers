@@ -311,7 +311,7 @@ public class UpperBlockEntity extends RandomizableContainerBlockEntity implement
 	@Nullable
 	public static Container getContainerAt(Level level, double x, double y, double z) {
 		Container container = null;
-		BlockPos blockpos = new BlockPos(x, y, z);
+		BlockPos blockpos = BlockPos.containing(x, y, z);
 		BlockState state = level.getBlockState(blockpos);
 		Block block = state.getBlock();
 		if (block instanceof WorldlyContainerHolder) {
@@ -342,7 +342,7 @@ public class UpperBlockEntity extends RandomizableContainerBlockEntity implement
 		} else if (stack1.getCount() > stack1.getMaxStackSize()) {
 			return false;
 		} else {
-			return ItemStack.tagMatches(stack1, stack2);
+			return ItemStack.matches(stack1, stack2);
 		}
 	}
 

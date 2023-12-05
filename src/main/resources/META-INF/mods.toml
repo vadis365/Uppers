@@ -1,45 +1,20 @@
-# This is an example mods.toml file. It contains the data relating to the loading mods.
-# There are several mandatory fields (#mandatory), and many more that are optional (#optional).
-# The overall format is standard TOML format, v0.5.0.
-# Note that there are a couple of TOML lists in this file.
-# Find more information on toml format here:  https://github.com/toml-lang/toml
-# The name of the mod loader type to load - for regular FML @Mod mods it should be javafml
 modLoader="javafml" #mandatory
-# A version range to match for said mod loader - for regular FML @Mod it will be the forge version
-loaderVersion="[43,)" #mandatory
+loaderVersion="[44,)" #mandatory
 license="All rights reserved"
 issueTrackerURL="https://github.com/vadis365/Uppers/issues"
 displayURL="https://github.com/vadis365/Uppers"
-# A list of mods - how many allowed here is determined by the individual mod loader
-[[mods]] #mandatory
-    # The modid of the mod
-    modId="uppers" #mandatory
-    # The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-    version="0.5.1" #mandatory
-     # A display name for the mod
-    displayName="Uppers" #mandatory
-    credits="Thanks to people and stuff." #optional
-    authors="vadis365" #optional
-    # The description text for the mod (multi line!) (#mandatory)
-    description='''
+[[mods]]
+modId="uppers"
+version="1.0.0"
+displayName="Uppers"
+credits="Thanks to people and stuff."
+authors="vadis365" #optional
+description='''
 A mod that adds upside-down hoppers.
 '''
-
-[[dependencies.uppers]] #optional
-    # the modid of the dependency
-    modId="forge" #mandatory
-    # Does this dependency have to exist - if not, ordering below must be specified
-    mandatory=true #mandatory
-    # The version range of the dependency
-    versionRange="[43,)" #mandatory
-    # An ordering relationship for the dependency - BEFORE or AFTER required if the relationship is not mandatory
-    ordering="NONE"
-    # Side this dependency is applied on - BOTH, CLIENT or SERVER
-    side="BOTH"
-
 [[dependencies.uppers]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.19.2,1.20)"
-    ordering="NONE"
-    side="BOTH"
+modId="forge"
+mandatory=true
+versionRange="[44.1.0,)"
+ordering="NONE"
+side="BOTH"

@@ -1,26 +1,24 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-    }
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
-version = '0.5.1'
+
+version = '1.0.0'
+
 group = 'some people' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'Uppers'
+base {
+    archivesName = 'Uppers'
+}
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'official', version: '1.19.2'
+    mappings channel: 'official', version: '1.20.1'
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-
+  	copyIdeResources = true
     //accessTransformer = file('my_at.cfg')
 
     // default run configurations.
@@ -61,27 +59,27 @@ minecraft {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.1.2'
+    minecraft 'net.minecraftforge:forge:1.20.1-47.1.0'
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
-jar {
+tasks.named('jar', Jar).configure {
     manifest {
         attributes(["Specification-Title": "uppers",
                     "Specification-Vendor": "vadis365",
                     "Specification-Version": "1", // We are version 1 of the modlauncher specification
                     "Implementation-Title": project.name,
-                    "Implementation-Version": "0.5.1",
+                    "Implementation-Version": "1.0.0",
                     "Implementation-Vendor" :"vadis365",
                     "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
+        finalizedBy 'reobfJar'
 }
 
-jar.finalizedBy('reobfJar')
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        register('mavenJava', MavenPublication) {
             artifact jar
         }
     }

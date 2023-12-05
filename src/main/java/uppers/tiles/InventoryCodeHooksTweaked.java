@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import uppers.blocks.UpperBlock;
@@ -201,7 +201,7 @@ public class InventoryCodeHooksTweaked
             BlockEntity tileentity = level .getBlockEntity(blockpos);
             if (tileentity != null)
             {
-                return tileentity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)
+                return tileentity.getCapability(ForgeCapabilities.ITEM_HANDLER, side)
                     .map(capability -> ImmutablePair.<IItemHandler, Object>of(capability, tileentity));
             }
         }
