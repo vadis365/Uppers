@@ -17,6 +17,8 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -38,6 +40,7 @@ public class Uppers {
 	public static final RegistryObject<BlockItem> UPPER_ITEM = ITEMS.register(Reference.UPPER, () -> 
 	new BlockItem(UPPER.get(), new Item.Properties()) {
 		@Override
+		@OnlyIn(Dist.CLIENT)
 		   public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn) {
 			tooltip.add(Component.translatable("tooltip.upper_1"));
 			tooltip.add(Component.translatable("tooltip.upper_2"));
