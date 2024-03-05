@@ -1,20 +1,21 @@
 modLoader="javafml" #mandatory
-loaderVersion="[44,)" #mandatory
+loaderVersion="[47,)" #mandatory
 license="All rights reserved"
 issueTrackerURL="https://github.com/vadis365/Uppers/issues"
-displayURL="https://github.com/vadis365/Uppers"
+
 [[mods]]
 modId="uppers"
-version="1.0.1"
+version="1.0.2"
 displayName="Uppers"
+displayURL="https://github.com/vadis365/Uppers"
 credits="Thanks to people and stuff."
 authors="vadis365" #optional
 description='''
 A mod that adds upside-down hoppers.
 '''
 [[dependencies.uppers]]
-modId="forge"
-mandatory=true
-versionRange="[1.20.1,)"
+modId="neoforge"
+type="required"
+versionRange="[1.20.4,)"
 ordering="NONE"
 side="BOTH"

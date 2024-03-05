@@ -34,7 +34,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
-import net.neoforged.neoforge.items.IItemHandler;
 import uppers.Uppers;
 import uppers.blocks.UpperBlock;
 
@@ -220,11 +219,6 @@ public class UpperBlockEntity extends RandomizableContainerBlockEntity implement
 		} else
 			entity.setItem(itemstack1);
 		return flag;
-	}
-
-	@Override
-	protected IItemHandler createUnSidedHandler() {
-		return new UpperItemHandler(this);
 	}
 
 	public static ItemStack addItem(@Nullable Container source, Container destination, ItemStack stack, @Nullable Direction direction) {
