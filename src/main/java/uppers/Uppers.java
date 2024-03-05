@@ -1,9 +1,11 @@
 package uppers;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
@@ -17,27 +19,30 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import uppers.blocks.UpperBlock;
 import uppers.tiles.UpperBlockEntity;
+import uppers.tiles.UpperItemHandler;
 
 @Mod(Reference.MOD_ID)
 public class Uppers {
-	private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, Reference.MOD_ID);
-	private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, Reference.MOD_ID);
-	private static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, Reference.MOD_ID);
+	private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Reference.MOD_ID);
+	private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Reference.MOD_ID);
+	private static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, Reference.MOD_ID);
 	private static final DeferredRegister<CreativeModeTab> TAB = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Reference.MOD_ID);
-	public static final RegistryObject<Block> UPPER = BLOCKS.register(Reference.UPPER, () -> new UpperBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().strength(3.0F, 4.8F).sound(SoundType.METAL).noOcclusion()));
+	public static final DeferredBlock<Block> UPPER = BLOCKS.register(Reference.UPPER, () -> new UpperBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops().strength(3.0F, 4.8F).sound(SoundType.METAL).noOcclusion()));
 
-	public static final RegistryObject<BlockItem> UPPER_ITEM = ITEMS.register(Reference.UPPER, () -> new BlockItem(UPPER.get(), new Item.Properties()) {
+	public static final DeferredItem<BlockItem> UPPER_ITEM = ITEMS.register(Reference.UPPER, () -> new BlockItem(UPPER.get(), new Item.Properties()) {
 		@Override
 		@OnlyIn(Dist.CLIENT)
 		   public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn) {
@@ -47,9 +52,9 @@ public class Uppers {
 		}
 	);
 
-	public static final RegistryObject<BlockEntityType<UpperBlockEntity>> UPPER_TILE = TILES.register(Reference.UPPER, () -> BlockEntityType.Builder.of(UpperBlockEntity::new, UPPER.get()).build(null));
+	public static final Supplier<BlockEntityType<UpperBlockEntity>> UPPER_TILE = TILES.register(Reference.UPPER, () -> BlockEntityType.Builder.of(UpperBlockEntity::new, UPPER.get()).build(null));
 
-	public static final RegistryObject<CreativeModeTab> UPPERS_TAB = TAB.register(Reference.MOD_ID, () -> CreativeModeTab.builder().
+	public static final DeferredHolder<CreativeModeTab, CreativeModeTab> UPPERS_TAB = TAB.register(Reference.MOD_ID, () -> CreativeModeTab.builder().
 			title(Component.translatable("itemGroup.uppers")).
 			icon(UPPER_ITEM.get()::getDefaultInstance).displayItems((params, output) -> {
 				output.accept(UPPER_ITEM.get());
@@ -57,12 +62,18 @@ public class Uppers {
 			.build());
 
 	public Uppers() {
-		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-		BLOCKS.register(modEventBus);
-		ITEMS.register(modEventBus);
-		TILES.register(modEventBus);
-		TAB.register(modEventBus);
-		MinecraftForge.EVENT_BUS.register(this);
+		IEventBus neoBus = NeoForge.EVENT_BUS;
+		BLOCKS.register(neoBus);
+		ITEMS.register(neoBus);
+		TILES.register(neoBus);
+		TAB.register(neoBus);
+		NeoForge.EVENT_BUS.register(this);
+		neoBus.addListener(this::registerCaps);
 	}
 
+	private void registerCaps(final RegisterCapabilitiesEvent event) {
+	       event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, UPPER_TILE.get(), (upper, side) -> {
+	            return new UpperItemHandler(upper);
+	        });
+	}
 }

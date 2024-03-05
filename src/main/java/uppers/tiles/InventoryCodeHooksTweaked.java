@@ -1,5 +1,6 @@
 package uppers.tiles;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -9,14 +10,16 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import uppers.blocks.UpperBlock;
 
 public class InventoryCodeHooksTweaked
@@ -154,13 +157,7 @@ public class InventoryCodeHooksTweaked
         return stack;
     }
 
-    private static Optional<Pair<IItemHandler, Object>> getItemHandler(Level level, IUpper upper, Direction upperFacing)
-    {
-        double x = upper.getLevelX() + (double) upperFacing.getStepX();
-        double y = upper.getLevelY() + (double) upperFacing.getStepY();
-        double z = upper.getLevelZ() + (double) upperFacing.getStepZ();
-        return getItemHandler(level, x, y, z, upperFacing.getOpposite());
-    }
+
 
     private static boolean isFull(IItemHandler itemHandler)
     {
@@ -188,22 +185,32 @@ public class InventoryCodeHooksTweaked
         return true;
     }
 
-    public static Optional<Pair<IItemHandler, Object>> getItemHandler(Level level, double x, double y, double z, final Direction side)
+    private static Optional<Pair<IItemHandler, Object>> getItemHandler(Level level, IUpper upper, Direction upperFacing)
     {
-        int i = Mth.floor(x);
-        int j = Mth.floor(y);
-        int k = Mth.floor(z);
-        BlockPos blockpos = new BlockPos(i, j, k);
-        BlockState state = level.getBlockState(blockpos);
+        double x = upper.getLevelX() + (double) upperFacing.getStepX();
+        double y = upper.getLevelY() + (double) upperFacing.getStepY();
+        double z = upper.getLevelZ() + (double) upperFacing.getStepZ();
+        return getItemHandlerAt(level, x, y, z, upperFacing.getOpposite());
+    }
 
-        if (state.hasBlockEntity())
-        {
-            BlockEntity tileentity = level .getBlockEntity(blockpos);
-            if (tileentity != null)
-            {
-                return tileentity.getCapability(ForgeCapabilities.ITEM_HANDLER, side)
-                    .map(capability -> ImmutablePair.<IItemHandler, Object>of(capability, tileentity));
-            }
+    private static Optional<Pair<IItemHandler, Object>> getItemHandlerAt(Level worldIn, double x, double y, double z, final Direction side) {
+        BlockPos blockpos = BlockPos.containing(x, y, z);
+        BlockState state = worldIn.getBlockState(blockpos);
+        BlockEntity blockEntity = state.hasBlockEntity() ? worldIn.getBlockEntity(blockpos) : null;
+
+        // Look for block capability first
+        var blockCap = worldIn.getCapability(Capabilities.ItemHandler.BLOCK, blockpos, state, blockEntity, side);
+        if (blockCap != null)
+            return Optional.of(ImmutablePair.of(blockCap, blockEntity));
+
+        // Otherwise fallback to automation entity capability
+        // Note: the isAlive check matches what vanilla does for hoppers in EntitySelector.CONTAINER_ENTITY_SELECTOR
+        List<Entity> list = worldIn.getEntities((Entity) null, new AABB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D), EntitySelector.ENTITY_STILL_ALIVE);
+        if (!list.isEmpty()) {
+            var entity = list.get(worldIn.random.nextInt(list.size()));
+            var entityCap = entity.getCapability(Capabilities.ItemHandler.ENTITY_AUTOMATION, side);
+            if (entityCap != null)
+                return Optional.of(ImmutablePair.of(entityCap, entity));
         }
 
         return Optional.empty();

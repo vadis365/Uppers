@@ -2,6 +2,8 @@ package uppers.blocks;
 
 import javax.annotation.Nullable;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.stats.Stats;
@@ -41,6 +43,7 @@ import uppers.tiles.IUpper;
 import uppers.tiles.UpperBlockEntity;
 
 public class UpperBlock extends BaseEntityBlock {
+	public static final MapCodec<UpperBlock> CODEC = simpleCodec(UpperBlock::new);
 	public static final DirectionProperty FACING = BlockStateProperties.FACING;
 	public static final BooleanProperty ENABLED = BlockStateProperties.ENABLED;
 	private static final VoxelShape INPUT_SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D);
@@ -213,5 +216,10 @@ public class UpperBlock extends BaseEntityBlock {
 	@Override
 	public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
 		return false;
+	}
+
+	@Override
+	protected MapCodec<UpperBlock> codec() {
+		return CODEC;
 	}
 }

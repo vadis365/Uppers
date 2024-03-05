@@ -3,7 +3,7 @@ package uppers.tiles;
 import javax.annotation.Nonnull;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.wrapper.InvWrapper;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 public class UpperItemHandler extends InvWrapper {
 	private final UpperBlockEntity upper;
