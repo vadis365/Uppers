@@ -67,8 +67,7 @@ public class Uppers {
 		ITEMS.register(modBus);
 		TILES.register(modBus);
 		TAB.register(modBus);
-		NeoForge.EVENT_BUS.register(this);
-		neoBus.addListener(this::registerCaps);
+		modBus.addListener(this::registerCaps);
 	}
 
 	private void registerCaps(final RegisterCapabilitiesEvent event) {
