@@ -61,12 +61,12 @@ public class Uppers {
 			})
 			.build());
 
-	public Uppers() {
+	public Uppers(IEventBus modBus) {
 		IEventBus neoBus = NeoForge.EVENT_BUS;
-		BLOCKS.register(neoBus);
-		ITEMS.register(neoBus);
-		TILES.register(neoBus);
-		TAB.register(neoBus);
+		BLOCKS.register(modBus);
+		ITEMS.register(modBus);
+		TILES.register(modBus);
+		TAB.register(modBus);
 		NeoForge.EVENT_BUS.register(this);
 		neoBus.addListener(this::registerCaps);
 	}
