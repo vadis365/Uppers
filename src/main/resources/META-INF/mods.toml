@@ -5,7 +5,7 @@ issueTrackerURL="https://github.com/vadis365/Uppers/issues"
 
 [[mods]]
 modId="uppers"
-version="${file.jarVersion}"
+version="1.0.2"
 displayName="Uppers"
 displayURL="https://github.com/vadis365/Uppers"
 credits="Thanks to people and stuff."
