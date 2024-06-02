@@ -193,9 +193,9 @@ public class InventoryCodeHooksTweaked
         double z = pos.getZ() + (double) upperFacing.getStepZ();
         return getItemHandlerAt(level, x, y, z, upperFacing.getOpposite());
     }
-    
+    // I think this works...
     private static Optional<Pair<IItemHandler, Object>> getSourceItemHandler(Level level, IUpper upper) {
-        return getItemHandlerAt(level, upper.getLevelX(), upper.getLevelY() + 1.0, upper.getLevelZ(), Direction.DOWN);
+        return getItemHandlerAt(level, upper.getLevelX(), upper.getLevelY() - 1.0, upper.getLevelZ(), Direction.DOWN);
     }
 
     private static Optional<Pair<IItemHandler, Object>> getItemHandlerAt(Level worldIn, double x, double y, double z, final Direction side) {
