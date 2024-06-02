@@ -5,7 +5,7 @@ issueTrackerURL="https://github.com/vadis365/Uppers/issues"
 
 [[mods]]
 modId="uppers"
-version="1.0.2"
+version="1.0.3"
 displayName="Uppers"
 displayURL="https://github.com/vadis365/Uppers"
 credits="Thanks to people and stuff."
@@ -16,6 +16,6 @@ A mod that adds upside-down hoppers.
 [[dependencies.uppers]]
 modId="neoforge"
 required=true
-versionRange="[20.4,)"
+versionRange="[20.6,)"
 ordering="NONE"
 side="BOTH"

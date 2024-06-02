@@ -1,22 +1,21 @@
 package uppers.tiles;
 
+import net.minecraft.world.Container;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.Hopper;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.AABB;
 
-public interface IUpper extends Hopper {
-	VoxelShape INSIDE_BOWL_SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 5.0D, 14.0D);
-	VoxelShape BLOCK_BELOW_SHAPE = Block.box(0.0D, -16.0D, 0.0D, 16.0D, 0.0D, 16.0D);
-	VoxelShape COLLECTION_AREA_SHAPE = Shapes.or(INSIDE_BOWL_SHAPE, BLOCK_BELOW_SHAPE);
+public interface IUpper extends Container {
+    AABB SUCK_AABB = Block.box(0.0, -16, 0.0, 16.0, 0, 16.0).toAabbs().get(0);
 
-	default VoxelShape getSuckShape() {
-		return COLLECTION_AREA_SHAPE;
-	}
+    default AABB getSuckAabb() {
+        return SUCK_AABB;
+    }
 
 	double getLevelX();
 
 	double getLevelY();
 
 	double getLevelZ();
+	
+	boolean isGridAligned();
 }

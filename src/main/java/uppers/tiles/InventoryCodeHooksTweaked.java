@@ -1,5 +1,6 @@
 package uppers.tiles;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class InventoryCodeHooksTweaked
     @Nullable
     public static Boolean extractHook(Level level, IUpper dest)
     {
-    	return getItemHandler(level, dest, Direction.DOWN).map(itemHandlerResult -> {
+    	return getSourceItemHandler(level, dest).map(itemHandlerResult -> {
 
         IItemHandler handler = itemHandlerResult.getKey();
 
@@ -66,7 +67,7 @@ public class InventoryCodeHooksTweaked
     public static boolean insertHook(UpperBlockEntity tileEntityUpper)
     {
     	Direction upperFacing = tileEntityUpper.getBlockState().getValue(UpperBlock.FACING);
-        return getItemHandler(tileEntityUpper.getLevel(), tileEntityUpper, upperFacing)
+        return getAttachedItemHandler(tileEntityUpper.getLevel(), tileEntityUpper.getBlockPos(), upperFacing)
                 .map(destinationResult -> {
                     IItemHandler itemHandler = destinationResult.getKey();
                     Object destination = destinationResult.getValue();
@@ -185,12 +186,16 @@ public class InventoryCodeHooksTweaked
         return true;
     }
 
-    private static Optional<Pair<IItemHandler, Object>> getItemHandler(Level level, IUpper upper, Direction upperFacing)
+    private static Optional<Pair<IItemHandler, Object>>  getAttachedItemHandler(Level level, BlockPos pos, Direction upperFacing)
     {
-        double x = upper.getLevelX() + (double) upperFacing.getStepX();
-        double y = upper.getLevelY() + (double) upperFacing.getStepY();
-        double z = upper.getLevelZ() + (double) upperFacing.getStepZ();
+        double x = pos.getX() + (double) upperFacing.getStepX();
+        double y = pos.getY() + (double) upperFacing.getStepY();
+        double z = pos.getZ() + (double) upperFacing.getStepZ();
         return getItemHandlerAt(level, x, y, z, upperFacing.getOpposite());
+    }
+    
+    private static Optional<Pair<IItemHandler, Object>> getSourceItemHandler(Level level, IUpper upper) {
+        return getItemHandlerAt(level, upper.getLevelX(), upper.getLevelY() + 1.0, upper.getLevelZ(), Direction.DOWN);
     }
 
     private static Optional<Pair<IItemHandler, Object>> getItemHandlerAt(Level worldIn, double x, double y, double z, final Direction side) {
@@ -207,10 +212,12 @@ public class InventoryCodeHooksTweaked
         // Note: the isAlive check matches what vanilla does for hoppers in EntitySelector.CONTAINER_ENTITY_SELECTOR
         List<Entity> list = worldIn.getEntities((Entity) null, new AABB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D), EntitySelector.ENTITY_STILL_ALIVE);
         if (!list.isEmpty()) {
-            var entity = list.get(worldIn.random.nextInt(list.size()));
-            var entityCap = entity.getCapability(Capabilities.ItemHandler.ENTITY_AUTOMATION, side);
-            if (entityCap != null)
-                return Optional.of(ImmutablePair.of(entityCap, entity));
+            Collections.shuffle(list);
+            for (Entity entity : list) {
+                IItemHandler entityCap = entity.getCapability(Capabilities.ItemHandler.ENTITY_AUTOMATION, side);
+                if (entityCap != null)
+                    return Optional.of(ImmutablePair.of(entityCap, entity));
+            }
         }
 
         return Optional.empty();

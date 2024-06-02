@@ -8,13 +8,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -39,7 +36,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import uppers.Uppers;
-import uppers.tiles.IUpper;
 import uppers.tiles.UpperBlockEntity;
 
 public class UpperBlock extends BaseEntityBlock {
@@ -49,17 +45,18 @@ public class UpperBlock extends BaseEntityBlock {
 	private static final VoxelShape INPUT_SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D);
 	private static final VoxelShape MIDDLE_SHAPE = Block.box(4.0D, 6.0D, 4.0D, 12.0D, 12.0D, 12.0D);
 	private static final VoxelShape INPUT_MIDDLE_SHAPE = Shapes.or(MIDDLE_SHAPE, INPUT_SHAPE);
-	private static final VoxelShape field_196326_A = Shapes.join(INPUT_MIDDLE_SHAPE, IUpper.INSIDE_BOWL_SHAPE, BooleanOp.ONLY_FIRST);
-	private static final VoxelShape DOWN_SHAPE = Shapes.or(field_196326_A, Block.box(6.0D, 12.0D, 6.0D, 10.0D, 16.0D, 10.0D));
-	private static final VoxelShape EAST_SHAPE = Shapes.or(field_196326_A, Block.box(12.0D, 8.0D, 6.0D, 16.0D, 12.0D, 10.0D));
-	private static final VoxelShape NORTH_SHAPE = Shapes.or(field_196326_A, Block.box(6.0D, 8.0D, 0.0D, 10.0D, 12.0D, 4.0D));
-	private static final VoxelShape SOUTH_SHAPE = Shapes.or(field_196326_A, Block.box(6.0D, 8.0D, 12.0D, 10.0D, 12.0D, 16.0D));
-	private static final VoxelShape WEST_SHAPE = Shapes.or(field_196326_A, Block.box(0.0D, 8.0D, 6.0D, 4.0D, 12.0D, 10.0D));
-	private static final VoxelShape DOWN_RAYTRACE_SHAPE = IUpper.INSIDE_BOWL_SHAPE;
-	private static final VoxelShape EAST_RAYTRACE_SHAPE = Shapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.box(12.0D, 6.0D, 6.0D, 16.0D, 8.0D, 10.0D));
-	private static final VoxelShape NORTH_RAYTRACE_SHAPE = Shapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.box(6.0D, 6.0D, 0.0D, 10.0D, 8.0D, 4.0D));
-	private static final VoxelShape SOUTH_RAYTRACE_SHAPE = Shapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.box(6.0D, 6.0D, 12.0D, 10.0D, 8.0D, 16.0D));
-	private static final VoxelShape WEST_RAYTRACE_SHAPE = Shapes.or(IUpper.INSIDE_BOWL_SHAPE, Block.box(0.0D, 6.0D, 6.0D, 4.0D, 8.0D, 10.0D));
+	private static final VoxelShape INSIDE_BOWL_SHAPE = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 5.0D, 14.0D);
+	private static final VoxelShape BASE = Shapes.join(INPUT_MIDDLE_SHAPE, INSIDE_BOWL_SHAPE, BooleanOp.ONLY_FIRST);
+	private static final VoxelShape DOWN_SHAPE = Shapes.or(BASE, Block.box(6.0D, 12.0D, 6.0D, 10.0D, 16.0D, 10.0D));
+	private static final VoxelShape EAST_SHAPE = Shapes.or(BASE, Block.box(12.0D, 8.0D, 6.0D, 16.0D, 12.0D, 10.0D));
+	private static final VoxelShape NORTH_SHAPE = Shapes.or(BASE, Block.box(6.0D, 8.0D, 0.0D, 10.0D, 12.0D, 4.0D));
+	private static final VoxelShape SOUTH_SHAPE = Shapes.or(BASE, Block.box(6.0D, 8.0D, 12.0D, 10.0D, 12.0D, 16.0D));
+	private static final VoxelShape WEST_SHAPE = Shapes.or(BASE, Block.box(0.0D, 8.0D, 6.0D, 4.0D, 12.0D, 10.0D));
+	private static final VoxelShape DOWN_RAYTRACE_SHAPE = INSIDE_BOWL_SHAPE;
+	private static final VoxelShape EAST_RAYTRACE_SHAPE = Shapes.or(INSIDE_BOWL_SHAPE, Block.box(12.0D, 6.0D, 6.0D, 16.0D, 8.0D, 10.0D));
+	private static final VoxelShape NORTH_RAYTRACE_SHAPE = Shapes.or(INSIDE_BOWL_SHAPE, Block.box(6.0D, 6.0D, 0.0D, 10.0D, 8.0D, 4.0D));
+	private static final VoxelShape SOUTH_RAYTRACE_SHAPE = Shapes.or(INSIDE_BOWL_SHAPE, Block.box(6.0D, 6.0D, 12.0D, 10.0D, 8.0D, 16.0D));
+	private static final VoxelShape WEST_RAYTRACE_SHAPE = Shapes.or(INSIDE_BOWL_SHAPE, Block.box(0.0D, 6.0D, 6.0D, 4.0D, 8.0D, 10.0D));
 
 	public UpperBlock(BlockBehaviour.Properties properties) {
 		super(properties);
@@ -82,7 +79,7 @@ public class UpperBlock extends BaseEntityBlock {
 		case EAST:
 			return EAST_SHAPE;
 		default:
-			return field_196326_A;
+			return BASE;
 		}
 	}
 
@@ -102,7 +99,7 @@ public class UpperBlock extends BaseEntityBlock {
 		case EAST:
 			return EAST_RAYTRACE_SHAPE;
 		default:
-			return IUpper.INSIDE_BOWL_SHAPE;
+			return INSIDE_BOWL_SHAPE;
 		}
 	}
 
@@ -123,22 +120,13 @@ public class UpperBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
-		if (stack.hasCustomHoverName()) {
-			BlockEntity tileentity = level.getBlockEntity(pos);
-			if (tileentity instanceof UpperBlockEntity)
-				((UpperBlockEntity) tileentity).setCustomName(stack.getHoverName());
-		}
-	}
-
-	@Override
 	public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
 		if (!oldState.is(state.getBlock()))
 			this.checkPoweredState(level, pos, state);
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
 		if (level.isClientSide) {
 			return InteractionResult.SUCCESS;
 		} else {
@@ -214,7 +202,7 @@ public class UpperBlock extends BaseEntityBlock {
 	}
 
 	@Override
-	public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
+	public boolean isPathfindable(BlockState state, PathComputationType type) {
 		return false;
 	}
 
