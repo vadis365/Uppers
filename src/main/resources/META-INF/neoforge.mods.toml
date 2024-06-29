@@ -9,13 +9,13 @@ version="1.0.3"
 displayName="Uppers"
 displayURL="https://github.com/vadis365/Uppers"
 credits="Thanks to people and stuff."
-authors="vadis365" #optional
+authors="vadis365"
 description='''
 A mod that adds upside-down hoppers.
 '''
 [[dependencies.uppers]]
 modId="neoforge"
 required=true
-versionRange="[20.6,)"
+versionRange="[21.0,)"
 ordering="NONE"
 side="BOTH"

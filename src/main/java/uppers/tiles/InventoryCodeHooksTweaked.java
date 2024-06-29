@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import uppers.blocks.UpperBlock;
 
 public class InventoryCodeHooksTweaked
@@ -44,7 +43,7 @@ public class InventoryCodeHooksTweaked
                 for (int j = 0; j < dest.getContainerSize(); j++)
                 {
                     ItemStack destStack = dest.getItem(j);
-                    if (dest.canPlaceItem(j, extractItem) && (destStack.isEmpty() || destStack.getCount() < destStack.getMaxStackSize() && destStack.getCount() < dest.getMaxStackSize() && ItemHandlerHelper.canItemStacksStack(extractItem, destStack)))
+                    if (dest.canPlaceItem(j, extractItem) && (destStack.isEmpty() || destStack.getCount() < destStack.getMaxStackSize() && destStack.getCount() < dest.getMaxStackSize() && ItemStack.isSameItemSameComponents(extractItem, destStack)))
                     {
                         extractItem = handler.extractItem(i, 1, false);
                         if (destStack.isEmpty())
@@ -124,7 +123,7 @@ public class InventoryCodeHooksTweaked
                 stack = ItemStack.EMPTY;
                 insertedItem = true;
             }
-            else if (ItemHandlerHelper.canItemStacksStack(itemstack, stack))
+            else if (ItemStack.isSameItemSameComponents(itemstack, stack))
             {
                 int originalSize = stack.getCount();
                 stack = destInventory.insertItem(slot, stack, false);

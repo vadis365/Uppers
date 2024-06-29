@@ -3,7 +3,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'eclipse'
-    id 'net.neoforged.gradle.userdev' version '7.0.138'
+    id 'net.neoforged.gradle.userdev' version '7.0.152'
     id "me.modmuss50.mod-publish-plugin" version "0.4.5"
 }
 
@@ -12,7 +12,7 @@ repositories {
     maven { url "https://www.cursemaven.com" }
 }
 
-version = '1.0.3'
+version = '2.0.0'
 group = 'com.vadis365.uppers'
 base {
     archivesName = "uppers"
@@ -58,7 +58,7 @@ jar {
             "Specification-Vendor": "vadis365",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,
-            "Implementation-Version": "1.0.3",
+            "Implementation-Version": "2.0.0",
             "Implementation-Vendor" :"",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
