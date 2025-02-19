@@ -12,7 +12,7 @@ repositories {
     maven { url "https://www.cursemaven.com" }
 }
 
-version = '2.0.0'
+version = '2.0.1'
 group = 'com.vadis365.uppers'
 base {
     archivesName = "uppers"
@@ -58,7 +58,7 @@ jar {
             "Specification-Vendor": "vadis365",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,
-            "Implementation-Version": "2.0.0",
+            "Implementation-Version": "2.0.1",
             "Implementation-Vendor" :"",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
